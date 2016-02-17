@@ -21,8 +21,6 @@
         </developer>
     </developers>
     <properties>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <app.main.class>com.gitlab.essobedo.appma.core.impl.Launcher</app.main.class>
     </properties>
     <dependencies>
@@ -85,23 +83,6 @@
         </plugins>
     </reporting>
     <build>
-        <finalName>application-manager</finalName>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>version.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>version.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
