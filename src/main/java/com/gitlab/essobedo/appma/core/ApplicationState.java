@@ -18,21 +18,11 @@
  */
 package com.gitlab.essobedo.appma.core;
 
-import com.gitlab.essobedo.appma.task.Task;
-import javafx.stage.Stage;
-
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public interface ApplicationManager {
-
-    Stage getStage();
-
-    Task<String> checkForUpdate();
-
-    boolean upgrade();
-
-    void onExit();
+enum ApplicationState {
+    CREATING, CREATED, INITIALIZING, INITIALIZED, UPGRADING, DESTROYING, DESTROYED, UNKNOWN
 }

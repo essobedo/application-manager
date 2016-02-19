@@ -16,23 +16,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.gitlab.essobedo.appma.core;
+package com.gitlab.essobedo.appma.core.zip;
 
 import com.gitlab.essobedo.appma.task.Task;
-import javafx.stage.Stage;
+import com.gitlab.essobedo.appma.exception.ApplicationException;
+import com.gitlab.essobedo.appma.i18n.Localization;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public interface ApplicationManager {
+public class UnzipTask extends Task<Void> {
 
-    Stage getStage();
+    private final File zipFile;
+    private final File destFolder;
 
-    Task<String> checkForUpdate();
+    public UnzipTask(final File zipFile, final File destFolder) {
+        super(Localization.getMessage("unzip.patch"));
+        this.zipFile = zipFile;
+        this.destFolder = destFolder;
+    }
 
-    boolean upgrade();
+    @Override
+    public boolean cancelable() {
+        return true;
+    }
 
-    void onExit();
+    @Override
+    public Void execute() throws ApplicationException {
+        try {
+            final ZipFile file = new ZipFile(zipFile);
+            file.unzip(destFolder);
+        } catch (IOException e) {
+            throw new ApplicationException("Could not unzip the patch", e);
+        }
+        return null;
+    }
 }

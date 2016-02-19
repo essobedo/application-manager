@@ -29,11 +29,11 @@ import java.io.OutputStream;
  * @version $Id$
  * @since 1.0
  */
-public interface VersionManager {
+public interface VersionManager<T extends Manageable> {
 
-    Task<Boolean> check(Manageable application) throws ApplicationException;
+    Task<String> check(T application) throws ApplicationException;
 
-    Task<Void> store(Manageable application, OutputStream target) throws ApplicationException;
+    Task<Void> store(T application, OutputStream target) throws ApplicationException;
 
     Task<Configuration> upgrade(File upgradeRoot, File appRoot, String oldVersion) throws ApplicationException;
 }

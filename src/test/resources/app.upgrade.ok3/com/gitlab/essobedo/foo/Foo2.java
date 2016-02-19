@@ -16,23 +16,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.gitlab.essobedo.appma.core;
-
-import com.gitlab.essobedo.appma.task.Task;
-import javafx.stage.Stage;
+package com.gitlab.essobedo.foo;
 
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public interface ApplicationManager {
+public class Foo2 extends Bar2 {
 
-    Stage getStage();
-
-    Task<String> checkForUpdate();
-
-    boolean upgrade();
-
-    void onExit();
 }

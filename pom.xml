@@ -20,9 +20,6 @@
             <name>Nicolas Filotto</name>
         </developer>
     </developers>
-    <properties>
-        <app.main.class>com.gitlab.essobedo.appma.core.impl.Launcher</app.main.class>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -94,11 +91,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>${app.main.class}</mainClass>
+                            <mainClass>com.gitlab.essobedo.appma.core.Launcher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

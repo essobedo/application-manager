@@ -18,21 +18,23 @@
  */
 package com.gitlab.essobedo.appma.core;
 
-import com.gitlab.essobedo.appma.task.Task;
-import javafx.stage.Stage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public interface ApplicationManager {
+class AsyncTaskExecutor {
 
-    Stage getStage();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    Task<String> checkForUpdate();
+    public void execute(final Runnable runnable) {
+        executor.execute(runnable);
+    }
 
-    boolean upgrade();
-
-    void onExit();
+    public void stop() {
+        executor.shutdown();
+    }
 }

@@ -39,21 +39,24 @@ import java.util.Arrays;
  * @version $Id$
  * @since 1.0
  */
-public class FooDepVersionManager implements VersionManager {
+public class FooDepVersionManager implements VersionManager<FooDep> {
 
     @Override
-    public Task<Boolean> check(final Manageable application) throws ApplicationException {
-        return new Task<Boolean>("Check") {
+    public Task<String> check(final FooDep application) throws ApplicationException {
+        return new Task<String>("Check") {
             @Override
             public boolean cancelable() {
                 return true;
             }
 
             @Override
-            public Boolean execute() throws ApplicationException {
+            public String execute() throws ApplicationException {
                 try {
-                    return new File(new File(FooDepVersionManager.class.getResource("/").toURI()),
-                        System.getProperty("test.folder") + "/upgrade.zip").exists();
+                    if (new File(new File(FooDepVersionManager.class.getResource("/").toURI()),
+                        System.getProperty("test.folder") + "/upgrade.zip").exists()) {
+                        return "2.0";
+                    }
+                    return null;
                 } catch (URISyntaxException e) {
                     throw new ApplicationException("Could not check for update", e);
                 }
@@ -62,7 +65,7 @@ public class FooDepVersionManager implements VersionManager {
     }
 
     @Override
-    public Task<Void> store(final Manageable application, final OutputStream target) throws ApplicationException {
+    public Task<Void> store(final FooDep application, final OutputStream target) throws ApplicationException {
 
         return new Task<Void>("store") {
             @Override
