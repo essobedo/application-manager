@@ -18,15 +18,12 @@
  */
 package com.gitlab.essobedo.appma.task;
 
-import java.util.Observable;
-import java.util.Observer;
-
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public abstract class TaskProgress implements Observer {
+public abstract class TaskProgress implements TaskObserver {
 
     protected final Task<?> task;
 
@@ -34,36 +31,4 @@ public abstract class TaskProgress implements Observer {
         this.task = task;
         task.addObserver(this);
     }
-
-    @Override
-    public void update(final Observable observable, final Object object) {
-        if (!(observable instanceof Task)) {
-            throw new IllegalArgumentException("A task was expected");
-        } else if (!(object instanceof Task.Event)) {
-            throw new IllegalArgumentException("A task event was expected");
-        }
-        final Task<?> task = (Task)observable;
-        final Task.Event event = (Task.Event)object;
-        switch (event) {
-            case PROGRESS:
-                updateProgress(task.getWorkDone(), task.getMax());
-                break;
-            case MESSAGE:
-                updateMessage(task.getMessage());
-                break;
-            case CANCEL:
-                if (task.cancelable()) {
-                    cancel();
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown event");
-        }
-    }
-
-    protected abstract void updateProgress(int done, int max);
-
-    protected abstract void updateMessage(String message);
-
-    protected abstract void cancel();
 }

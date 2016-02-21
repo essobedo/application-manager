@@ -59,19 +59,19 @@ public class StatusBar extends VBox {
         }
 
         @Override
-        protected void updateProgress(final int done, final int max) {
+        public void updateProgress(final int done, final int max) {
             if (max >= done && max > 0) {
                 StatusBar.this.bar.setProgress((double) (done / max));
             }
         }
 
         @Override
-        protected void updateMessage(final String message) {
+        public void updateMessage(final String message) {
             StatusBar.this.label.setText(message);
         }
 
         @Override
-        protected void cancel() {
+        public void cancel() {
             StatusBar.this.button.setDisable(true);
         }
     }

@@ -348,13 +348,13 @@ class DefaultApplicationManager implements ApplicationManager {
         if (versionManager == null) {
             throw new ApplicationException("No version manager could be found");
         }
+        final File patchFolder = getPatchContent(application, versionManager);
         final String oldVersion = application.version();
         destroy();
         if (!state.compareAndSet(ApplicationState.DESTROYED, ApplicationState.UPGRADING)) {
             throw new ApplicationException(String.format(
                 "Could not upgrade the application as the state is illegal: %s", state.get()));
         }
-        final File patchFolder = getPatchContent(application, versionManager);
         if (patchFolder == null || !applyPatch(application.getClass(), patchFolder, oldVersion)) {
             return;
         }

@@ -40,7 +40,7 @@ public class LogProgress extends TaskProgress {
     }
 
     @Override
-    protected void updateProgress(final int done, final int max) {
+    public void updateProgress(final int done, final int max) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, String.format("Task '%s': %d out of %d has been done",
                 task.getName(), done, max));
@@ -48,14 +48,14 @@ public class LogProgress extends TaskProgress {
     }
 
     @Override
-    protected void updateMessage(final String message) {
+    public void updateMessage(final String message) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, String.format("Task '%s': %s", task.getName(), message));
         }
     }
 
     @Override
-    protected void cancel() {
+    public void cancel() {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, String.format("The task '%s' has been canceled", task.getName()));
         }
