@@ -34,7 +34,6 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
@@ -77,11 +76,12 @@ public class Launcher extends Application {
                 manager.readConfiguration(input);
             }
         }
+        DefaultApplicationManager applicationManager = null;
+        Manageable application = null;
         try {
             final RootFolder root = new RootFolder(Launcher.class);
-            final DefaultApplicationManager applicationManager = new DefaultApplicationManager(
-                root.getLocation(), args);
-            final Manageable application = applicationManager.create();
+            applicationManager = new DefaultApplicationManager(root.getLocation(), args);
+            application = applicationManager.create();
             if (application.isJavaFX()) {
                 APPLICATION_MANAGER = applicationManager;
                 launch(args);
@@ -94,6 +94,17 @@ public class Launcher extends Application {
             }
             System.exit(1);
         }
+        if (applicationManager != null && application != null && !application.isJavaFX()) {
+            try {
+                applicationManager.destroy();
+            } catch (Exception e) {
+                if (LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE, e.getMessage(), e);
+                }
+            } finally {
+                System.exit(0);
+            }
+        }
     }
 
     @Override
@@ -103,12 +114,11 @@ public class Launcher extends Application {
         final ProgressBar bar = new ProgressBar();
         bar.setMinWidth(250);
         final Label label = new Label(Localization.getMessage("status.loading"));
-        final Button button = new Button(Localization.getMessage("exit"));
-        button.setOnAction(event -> primaryStage.close());
-        button.setDisable(true);
-        vBox.getChildren().addAll(label, bar, button);
+        vBox.getChildren().addAll(label, bar);
         primaryStage.setScene(new Scene(vBox, 300.0d, 150.0d));
         final Manageable application = Launcher.APPLICATION_MANAGER.getApplication();
+        primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(event -> event.consume());
         if (application.title() == null) {
             primaryStage.setTitle(Localization.getMessage("title.window"));
         } else {
@@ -121,9 +131,10 @@ public class Launcher extends Application {
 
         final Runnable runnable = () -> {
             try {
-                final Scene scene = Launcher.APPLICATION_MANAGER.init();
                 Launcher.APPLICATION_MANAGER.setStage(primaryStage);
+                final Scene scene = Launcher.APPLICATION_MANAGER.init();
                 Platform.runLater(() -> {
+                    primaryStage.setResizable(true);
                     primaryStage.setScene(scene);
                     final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
                     primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
@@ -131,7 +142,6 @@ public class Launcher extends Application {
                 });
             } catch (ApplicationException e) {
                 label.setText(Localization.getMessage("status.error"));
-                button.setDisable(false);
                 if (LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }

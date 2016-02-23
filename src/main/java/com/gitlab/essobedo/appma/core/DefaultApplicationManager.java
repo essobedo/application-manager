@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -475,18 +476,24 @@ class DefaultApplicationManager implements ApplicationManager {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, String.format("The version manager '%s' has ben found",
                     versionManager.getClass().getName()));
-                LOG.log(Level.FINE, String.format("The version manager '%s' has %s generic interfaces",
+                LOG.log(Level.FINE, String.format("The version manager '%s' has '%s' generic interfaces",
                     versionManager.getClass().getName(), versionManager.getClass().getGenericInterfaces().length));
+                LOG.log(Level.FINE, String.format("The version manager '%s' has '%s' as generic super class",
+                    versionManager.getClass().getName(), versionManager.getClass().getGenericSuperclass()));
             }
-            if (versionManager.getClass().getGenericInterfaces().length != 1) {
+            final Type[] types = versionManager.getClass().getGenericInterfaces().length == 0 ?
+                (versionManager.getClass().getGenericSuperclass() == null ? new Type[]{} :
+                new Type[]{versionManager.getClass().getGenericSuperclass()}) :
+                versionManager.getClass().getGenericInterfaces();
+            if (types.length != 1) {
                 continue;
             }
-            if (!(versionManager.getClass().getGenericInterfaces()[0] instanceof ParameterizedType)) {
+            if (!(types[0] instanceof ParameterizedType)) {
                 return versionManager;
             }
-            final ParameterizedType type = (ParameterizedType)versionManager.getClass().getGenericInterfaces()[0];
+            final ParameterizedType type = (ParameterizedType)types[0];
             if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, String.format("The version manager '%s' has %s type arguments",
+                LOG.log(Level.FINE, String.format("The version manager '%s' has '%s' type arguments",
                     versionManager.getClass().getName(), type.getActualTypeArguments().length));
             }
             if (type.getActualTypeArguments().length != 1 ) {
@@ -510,7 +517,8 @@ class DefaultApplicationManager implements ApplicationManager {
     private void exit() {
         executor.stop();
         if (getStage() != null) {
-            Platform.runLater(() -> getStage().close());
+            getStage().close();
+            Platform.exit();
         }
     }
 

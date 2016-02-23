@@ -18,9 +18,9 @@
  */
 package com.gitlab.essobedo.appma.core.progress;
 
-import com.gitlab.essobedo.appma.task.Task;
-import com.gitlab.essobedo.appma.task.TaskProgress;
 import com.gitlab.essobedo.appma.i18n.Localization;
+import com.gitlab.essobedo.appma.task.Task;
+import com.gitlab.essobedo.appma.task.TaskProgressFX;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -34,40 +34,28 @@ import javafx.scene.layout.VBox;
  */
 public class StatusBar extends VBox {
 
-    private final ProgressBar bar;
-    private final Label label;
     private final Button button;
     private final Progress progress;
 
     public StatusBar(final Task<?> task) {
         super(10);
-        setAlignment(Pos.CENTER);
-        this.bar = new ProgressBar();
+        this.setAlignment(Pos.CENTER);
+        final ProgressBar bar = new ProgressBar();
         bar.setMinWidth(250);
-        this.label = new Label(task.getName());
+        final Label label = new Label(task.getName());
         this.button = new Button(Localization.getMessage("cancel"));
         button.setOnAction(event -> task.cancel());
         button.setDisable(!task.cancelable());
-        getChildren().addAll(label, bar, button);
+        this.getChildren().addAll(label, bar, button);
         this.progress = new Progress(task);
+        label.textProperty().bind(progress.messageProperty());
+        bar.progressProperty().bind(progress.progressProperty());
     }
 
-    private class Progress extends TaskProgress {
+    private class Progress extends TaskProgressFX {
 
         private Progress(final Task<?> task) {
             super(task);
-        }
-
-        @Override
-        public void updateProgress(final int done, final int max) {
-            if (max >= done && max > 0) {
-                StatusBar.this.bar.setProgress((double) (done / max));
-            }
-        }
-
-        @Override
-        public void updateMessage(final String message) {
-            StatusBar.this.label.setText(message);
         }
 
         @Override

@@ -21,7 +21,6 @@ package com.gitlab.essobedo.appma.task;
 import com.gitlab.essobedo.appma.exception.ApplicationException;
 import com.gitlab.essobedo.appma.exception.TaskInterruptedException;
 import java.util.Observable;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
@@ -30,60 +29,70 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class Task<T> extends Observable {
 
-    private String message;
-    private int done;
     private int max;
+    private int done;
+    private String message;
+    private boolean canceled;
 
     private final String name;
-    private final AtomicBoolean canceled = new AtomicBoolean();
 
     protected Task(final String name) {
         this.name = name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void updateProgress(final int done, final int max) {
         synchronized (this) {
             this.done = done;
             this.max = max;
+            this.setChanged();
             this.notifyObservers(Task.Event.PROGRESS);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void updateMessage(final String message) {
         synchronized (this) {
             this.message = message;
+            this.setChanged();
             this.notifyObservers(Task.Event.MESSAGE);
         }
     }
 
     public void cancel() {
-        this.notifyObservers(Task.Event.CANCEL);
+        synchronized (this) {
+            this.canceled = true;
+            this.setChanged();
+            this.notifyObservers(Task.Event.CANCEL);
+        }
     }
 
     public String getMessage() {
-        return this.message;
+        synchronized (this) {
+            return this.message;
+        }
     }
 
     public int getWorkDone() {
-        return this.done;
+        synchronized (this) {
+            return this.done;
+        }
     }
 
     public int getMax() {
-        return this.max;
+        synchronized (this) {
+            return this.max;
+        }
     }
 
     public String getName() {
-        return this.name;
+        synchronized (this) {
+            return this.name;
+        }
     }
 
     protected boolean isCanceled() {
-        return canceled.get();
+        synchronized (this) {
+            return canceled;
+        }
     }
 
     public abstract boolean cancelable();

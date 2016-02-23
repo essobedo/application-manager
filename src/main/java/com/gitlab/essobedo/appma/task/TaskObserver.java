@@ -34,7 +34,7 @@ public interface TaskObserver extends Observer {
         } else if (!(object instanceof Task.Event)) {
             throw new IllegalArgumentException("A task event was expected");
         }
-        final Task<?> task = (Task)observable;
+        final Task<?> task = (Task<?>)observable;
         final Task.Event event = (Task.Event)object;
         switch (event) {
             case PROGRESS:
