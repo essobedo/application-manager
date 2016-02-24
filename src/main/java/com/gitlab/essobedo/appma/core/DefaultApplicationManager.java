@@ -98,7 +98,7 @@ class DefaultApplicationManager implements ApplicationManager {
     private final AtomicReference<ApplicationState> state = new AtomicReference<>(ApplicationState.DESTROYED);
 
     /**
-     * The executot used to execute all the asynchronous tasks
+     * The executor used to execute all the asynchronous tasks
      */
     private final AsyncTaskExecutor executor = new AsyncTaskExecutor();
 
