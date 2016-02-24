@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Test;
@@ -388,7 +389,7 @@ public class TestDefaultApplicationManager {
     public void testAppUpgrade() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
-        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
             new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
@@ -441,7 +442,7 @@ public class TestDefaultApplicationManager {
     public void testAppUpgrade2() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
-        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok2";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
             new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
@@ -597,7 +598,7 @@ public class TestDefaultApplicationManager {
     public void testAppUpgrade7() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
-        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok7";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
             new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
@@ -631,14 +632,14 @@ public class TestDefaultApplicationManager {
     public void testAppUpgrade8() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
-        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok8";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
             new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
         ApplicationManager applicationManager = manager;
         Properties properties;
         try {
-            System.setProperty("test.folder", "");
+            System.setProperty("test.folder", folderName);
             Manageable application = manager.create();
             assertEquals("foo", application.name());
             assertEquals("1.0", application.version());
@@ -649,6 +650,39 @@ public class TestDefaultApplicationManager {
             assertEquals("1.0", properties.getProperty("init"));
             assertEquals(1, properties.size());
             application = null;
+            assertEquals("2.0", applicationManager.checkForUpdate().execute());
+            manager.doUpgrade();
+        } finally {
+            System.clearProperty("test.folder");
+        }
+        applicationManager.onExit();
+        properties = load(temp);
+        assertEquals("2.0", properties.getProperty("init"));
+        assertEquals("2.0", properties.getProperty("destroy"));
+        assertEquals(2, properties.size());
+    }
+
+    @Test
+    public void testAppUpgrade9() throws Exception {
+        this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
+        String folderName = "app.upgrade.ok9";
+        DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
+            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+        ApplicationManager applicationManager = manager;
+        Properties properties;
+        Manageable application = manager.create();
+        assertEquals("foo", application.name());
+        assertEquals("1.0", application.version());
+        assertEquals("foo", application.title());
+        assertFalse(application.isJavaFX());
+        assertNull(manager.init());
+        properties = load(temp);
+        assertEquals("1.0", properties.getProperty("init"));
+        assertEquals(1, properties.size());
+        application = null;
+        try {
             System.setProperty("test.folder", folderName);
             assertEquals("2.0", applicationManager.checkForUpdate().execute());
             manager.doUpgrade();
@@ -666,7 +700,7 @@ public class TestDefaultApplicationManager {
     public void testNoVersionManager() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
-        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ko";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
             new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
@@ -702,7 +736,7 @@ public class TestDefaultApplicationManager {
     public void testNoVersionManager2() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
-        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ko2";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
             new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);

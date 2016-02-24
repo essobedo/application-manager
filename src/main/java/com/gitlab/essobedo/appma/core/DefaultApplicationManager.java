@@ -37,10 +37,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ServiceLoader;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -443,7 +443,7 @@ class DefaultApplicationManager implements ApplicationManager {
                 executeTask(versionManager.store(application, out));
             }
             destFolder = patchContentTargetFolder == null ?
-                new File(zipFile.getParentFile(), UUID.randomUUID().toString()) : patchContentTargetFolder;
+                new File(Files.createTempDirectory("upgrade").toString()) : patchContentTargetFolder;
             final Task<Void> unzip = new UnzipTask(zipFile, destFolder);
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, "Unzipping the patch");
