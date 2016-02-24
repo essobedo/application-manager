@@ -50,6 +50,10 @@ public class StatusBar extends VBox {
         this.progress = new Progress(task);
         label.textProperty().bind(progress.messageProperty());
         bar.progressProperty().bind(progress.progressProperty());
+        progress.overProperty().addListener((observable) -> {
+            bar.progressProperty().unbind();
+            bar.setProgress(1d);
+        });
     }
 
     private class Progress extends TaskProgressFX {

@@ -569,6 +569,31 @@ public class TestDefaultApplicationManager {
     }
 
     @Test
+    public void testAppUpgrade6() throws Exception {
+        this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        String folderName = "app.upgrade.ok6";
+        DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
+            new String[]{temp.getAbsolutePath()});
+        Manageable application = manager.create();
+        assertEquals("foo", application.name());
+        assertEquals("1.0", application.version());
+        assertEquals("foo", application.title());
+        assertFalse(application.isJavaFX());
+        assertNull(manager.init());
+        Properties properties = load(temp);
+        assertEquals("true", properties.getProperty("init"));
+        assertEquals(1, properties.size());
+        application = null;
+        ApplicationManager applicationManager = manager;
+        assertEquals("2.0", applicationManager.checkForUpdate().execute());
+        applicationManager.onExit();
+        properties = load(temp);
+        assertEquals("true", properties.getProperty("init"));
+        assertEquals("true", properties.getProperty("destroy"));
+        assertEquals(2, properties.size());
+    }
+
+    @Test
     public void testNoVersionManager() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");

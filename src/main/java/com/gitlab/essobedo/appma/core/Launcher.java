@@ -30,14 +30,11 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -132,14 +129,7 @@ public class Launcher extends Application {
         final Runnable runnable = () -> {
             try {
                 Launcher.APPLICATION_MANAGER.setStage(primaryStage);
-                final Scene scene = Launcher.APPLICATION_MANAGER.init();
-                Platform.runLater(() -> {
-                    primaryStage.setResizable(true);
-                    primaryStage.setScene(scene);
-                    final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-                    primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
-                    primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
-                });
+                Launcher.APPLICATION_MANAGER.initNShow();
             } catch (ApplicationException e) {
                 label.setText(Localization.getMessage("status.error"));
                 if (LOG.isLoggable(Level.SEVERE)) {

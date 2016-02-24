@@ -35,7 +35,7 @@ public class UnzipTask extends Task<Void> {
     private final File destFolder;
 
     public UnzipTask(final File zipFile, final File destFolder) {
-        super(Localization.getMessage("unzip.patch"));
+        super(Localization.getMessage("patch.unzip"));
         this.zipFile = zipFile;
         this.destFolder = destFolder;
     }
@@ -48,6 +48,7 @@ public class UnzipTask extends Task<Void> {
     @Override
     public Void execute() throws ApplicationException {
         try {
+            updateMessage(Localization.getMessage("patch.unzipping"));
             final ZipFile file = new ZipFile(zipFile);
             file.unzip(destFolder);
         } catch (IOException e) {

@@ -45,7 +45,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -285,17 +287,17 @@ class DefaultApplicationManager implements ApplicationManager {
             }
             return null;
         }
-        final VersionManager versionManager = getVersionManager(application.getClass(),
-                                                                application.getClass().getClassLoader());
-        if (versionManager == null) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "No version manager could be found");
-            }
-            return null;
-        }
         final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
+            final VersionManager versionManager = getVersionManager(application.getClass().getName(),
+                application.getClass().getClassLoader());
+            if (versionManager == null) {
+                if (LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE, "No version manager could be found");
+                }
+                return null;
+            }
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, String.format("Checking for update for the application '%s' version '%s'",
                     application.name(),
@@ -328,6 +330,7 @@ class DefaultApplicationManager implements ApplicationManager {
                 if (LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
+                exit();
             }
         };
         executor.execute(runnable);
@@ -339,12 +342,13 @@ class DefaultApplicationManager implements ApplicationManager {
             throw new ApplicationException(String.format(
                 "Could not upgrade the application as the state is illegal: %s", state.get()));
         }
-        final Manageable application = getApplication();
+        Manageable application = getApplication();
         if (application == null) {
             throw new ApplicationException(String.format(
                 "Could not upgrade the application as the state is illegal: %s", state.get()));
         }
-        final VersionManager versionManager = getVersionManager(application.getClass(),
+        final String className = application.getClass().getName();
+        final VersionManager versionManager = getVersionManager(className,
                                                                 application.getClass().getClassLoader());
         if (versionManager == null) {
             throw new ApplicationException("No version manager could be found");
@@ -352,11 +356,12 @@ class DefaultApplicationManager implements ApplicationManager {
         final File patchFolder = getPatchContent(application, versionManager);
         final String oldVersion = application.version();
         destroy();
+        application = null;
         if (!state.compareAndSet(ApplicationState.DESTROYED, ApplicationState.UPGRADING)) {
             throw new ApplicationException(String.format(
                 "Could not upgrade the application as the state is illegal: %s", state.get()));
         }
-        if (patchFolder == null || !applyPatch(application.getClass(), patchFolder, oldVersion)) {
+        if (patchFolder == null || !applyPatch(className, patchFolder, oldVersion)) {
             return;
         }
         if (!state.compareAndSet(ApplicationState.UPGRADING, ApplicationState.DESTROYED)) {
@@ -364,13 +369,26 @@ class DefaultApplicationManager implements ApplicationManager {
                 "Could not upgrade the application as the state is illegal: %s", state.get()));
         }
         create();
+        initNShow();
+    }
+
+    void initNShow() throws ApplicationException {
         final Scene scene = init();
         if (getStage() != null) {
-            Platform.runLater(() -> getStage().setScene(scene));
+            Platform.runLater(() -> showApplication(scene));
         }
     }
 
-    private boolean applyPatch(final Class<? extends Manageable> clazz, final File patchFolder,
+    private void showApplication(final Scene scene) {
+        final Stage primaryStage = getStage();
+        primaryStage.setResizable(true);
+        primaryStage.setScene(scene);
+        final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
+        primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
+    }
+
+    private boolean applyPatch(final String className, final File patchFolder,
                                final String oldVersion) throws ApplicationException {
         final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
         try {
@@ -378,10 +396,7 @@ class DefaultApplicationManager implements ApplicationManager {
             final Configuration config = factory.create();
             final ClassLoader cl = getClassLoader(config);
             Thread.currentThread().setContextClassLoader(cl);
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Applying the patch");
-            }
-            final VersionManager versionManager = getVersionManager(clazz, cl);
+            final VersionManager versionManager = getVersionManager(className, cl);
             if (versionManager == null) {
                 throw new ApplicationException("No version manager could be found");
             } else if (LOG.isLoggable(Level.INFO)) {
@@ -462,13 +477,26 @@ class DefaultApplicationManager implements ApplicationManager {
         } else {
             final StatusBar bar = new StatusBar(task);
             final Scene scene = new Scene(bar, 300.0d, 150.0d);
-            Platform.runLater(() -> getStage().setScene(scene));
+
+            Platform.runLater(() -> {
+                showStatusWindow(scene);
+            });
         }
         return task.execute();
     }
 
-    private VersionManager<?> getVersionManager(final Class<? extends Manageable> clazz,
-                                                final ClassLoader classLoader) {
+    private void showStatusWindow(final Scene scene) {
+        final Stage primaryStage = getStage();
+        primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(event -> event.consume());
+        primaryStage.setScene(scene);
+        final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
+        primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
+    }
+
+    private VersionManager<?> getVersionManager(final String className, final ClassLoader classLoader)
+        throws ApplicationException {
         final ServiceLoader<VersionManager> loader = ServiceLoader.load(VersionManager.class, classLoader);
         final Iterator<VersionManager> iterator = loader.iterator();
         while (iterator.hasNext()) {
@@ -505,8 +533,12 @@ class DefaultApplicationManager implements ApplicationManager {
                     versionManager.getClass().getName(), typeClass));
             }
 
-            if (!typeClass.isAssignableFrom(clazz)) {
-                continue;
+            try {
+                if (!typeClass.isAssignableFrom(Class.forName(className, false, classLoader))) {
+                    continue;
+                }
+            } catch (ClassNotFoundException e) {
+                throw new ApplicationException(String.format("Could not find the class '%s'", className), e);
             }
 
             return versionManager;
@@ -517,8 +549,10 @@ class DefaultApplicationManager implements ApplicationManager {
     private void exit() {
         executor.stop();
         if (getStage() != null) {
-            getStage().close();
-            Platform.exit();
+            Platform.runLater(() -> {
+                getStage().close();
+                Platform.exit();
+            });
         }
     }
 
