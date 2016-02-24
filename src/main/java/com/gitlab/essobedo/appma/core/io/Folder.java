@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +53,7 @@ public class Folder {
      */
     public void delete() {
         try {
-            Path directory = Paths.get(folder.getAbsolutePath());
+            final Path directory = Paths.get(folder.getAbsolutePath());
             Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
@@ -70,6 +71,37 @@ public class Folder {
         } catch (IOException e) {
             if (LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, String.format("Could not delete the content of the folder '%s'",
+                    folder.getAbsolutePath()), e);
+            }
+        }
+    }
+
+    /**
+     * Copies the folder.
+     * @param destination the folder in which the content of the folder will be copied
+     */
+    public void copy(final File destination) {
+        try {
+            final Path directory = Paths.get(folder.getAbsolutePath());
+            final Path target = Paths.get(destination.getAbsolutePath());
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                    Files.copy(file, target.resolve(directory.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+                    throws IOException {
+                    Files.copy(dir, target.resolve(directory.relativize(dir)), StandardCopyOption.REPLACE_EXISTING);
+                    return FileVisitResult.CONTINUE;
+                }
+
+            });
+        } catch (IOException e) {
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, String.format("Could not copy the content of the folder '%s'",
                     folder.getAbsolutePath()), e);
             }
         }

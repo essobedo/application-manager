@@ -27,12 +27,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.junit.After;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import org.junit.Test;
 
 /**
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
@@ -590,6 +590,75 @@ public class TestDefaultApplicationManager {
         properties = load(temp);
         assertEquals("true", properties.getProperty("init"));
         assertEquals("true", properties.getProperty("destroy"));
+        assertEquals(2, properties.size());
+    }
+
+    @Test
+    public void testAppUpgrade7() throws Exception {
+        this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        String folderName = "app.upgrade.ok7";
+        DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
+            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+        ApplicationManager applicationManager = manager;
+        Properties properties;
+        try {
+            System.setProperty("test.folder", folderName);
+            Manageable application = manager.create();
+            assertEquals("foo", application.name());
+            assertEquals("1.0", application.version());
+            assertEquals("foo", application.title());
+            assertFalse(application.isJavaFX());
+            assertNull(manager.init());
+            properties = load(temp);
+            assertEquals("1.0", properties.getProperty("init"));
+            assertEquals(1, properties.size());
+            application = null;
+            assertEquals("2.0", applicationManager.checkForUpdate().execute());
+            manager.doUpgrade();
+        } finally {
+            System.clearProperty("test.folder");
+        }
+        applicationManager.onExit();
+        properties = load(temp);
+        assertEquals("2.0", properties.getProperty("init"));
+        assertEquals("2.0", properties.getProperty("destroy"));
+        assertEquals(2, properties.size());
+    }
+
+    @Test
+    public void testAppUpgrade8() throws Exception {
+        this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        this.patchTargetFile = File.createTempFile("TestDefaultApplicationManager", "tmp");
+        File patchContentTargetFolder = new File(patchTargetFile.getParentFile(), "patchContentTargetFolder");
+        String folderName = "app.upgrade.ok8";
+        DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
+            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+        ApplicationManager applicationManager = manager;
+        Properties properties;
+        try {
+            System.setProperty("test.folder", "");
+            Manageable application = manager.create();
+            assertEquals("foo", application.name());
+            assertEquals("1.0", application.version());
+            assertEquals("foo", application.title());
+            assertFalse(application.isJavaFX());
+            assertNull(manager.init());
+            properties = load(temp);
+            assertEquals("1.0", properties.getProperty("init"));
+            assertEquals(1, properties.size());
+            application = null;
+            System.setProperty("test.folder", folderName);
+            assertEquals("2.0", applicationManager.checkForUpdate().execute());
+            manager.doUpgrade();
+        } finally {
+            System.clearProperty("test.folder");
+        }
+        applicationManager.onExit();
+        properties = load(temp);
+        assertEquals("2.0", properties.getProperty("init"));
+        assertEquals("2.0", properties.getProperty("destroy"));
         assertEquals(2, properties.size());
     }
 
