@@ -21,9 +21,9 @@ package com.gitlab.essobedo.appma.core.config;
 import com.gitlab.essobedo.appma.core.Configuration;
 import com.gitlab.essobedo.appma.exception.ApplicationException;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -68,8 +68,8 @@ public final class ConfigurationFactory {
                     configFile.getAbsolutePath()));
             }
             final Properties properties = new Properties();
-            try (final Reader reader = new FileReader(configFile)) {
-                properties.load(reader);
+            try (final InputStream input = new FileInputStream(configFile)) {
+                properties.load(input);
             } catch (IOException e) {
                 throw new ApplicationException(String.format("Could not load the configuration from '%s'",
                     configFile.getAbsolutePath()), e);

@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -60,19 +61,12 @@ public class Launcher extends Application {
     /**
      * The current application manager
      */
+    @SuppressWarnings({"PMD.VariableNamingConventions","PMD.MisleadingVariableName","PMD.SuspiciousConstantFieldName"})
     private static DefaultApplicationManager APPLICATION_MANAGER;
 
-    public static void main(final String[] args) throws IOException {
-        final File logs = new File("logs");
-        if (logs.exists() || logs.mkdir()) {
-            final LogManager manager = LogManager.getLogManager();
-            final String loggerPath = System.getProperty(Launcher.PARAM_LOGGER);
-            try (final InputStream input = loggerPath == null ?
-                Launcher.class.getResourceAsStream("/conf/logging.properties") :
-                new FileInputStream(loggerPath)) {
-                manager.readConfiguration(input);
-            }
-        }
+    public static void main(final String... args) throws IOException {
+        setupLogging();
+
         DefaultApplicationManager applicationManager = null;
         Manageable application = null;
         try {
@@ -91,21 +85,32 @@ public class Launcher extends Application {
             }
             System.exit(1);
         }
-        if (applicationManager != null && application != null && !application.isJavaFX()) {
+        if (!application.isJavaFX()) {
             try {
                 applicationManager.destroy();
             } catch (Exception e) {
                 if (LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
-            } finally {
-                System.exit(0);
+            }
+            System.exit(0);
+        }
+    }
+    private static void setupLogging() throws IOException {
+        final File logs = new File("logs");
+        if (logs.exists() || logs.mkdir()) {
+            final LogManager manager = LogManager.getLogManager();
+            final String loggerPath = System.getProperty(Launcher.PARAM_LOGGER);
+            try (final InputStream input = loggerPath == null ?
+                Launcher.class.getResourceAsStream("/conf/logging.properties") :
+                new FileInputStream(loggerPath)) {
+                manager.readConfiguration(input);
             }
         }
     }
 
     @Override
-    public void start(final Stage primaryStage) throws Exception {
+    public void start(final Stage primaryStage) throws ApplicationException {
         final VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.CENTER);
         final ProgressBar bar = new ProgressBar();
@@ -115,7 +120,7 @@ public class Launcher extends Application {
         primaryStage.setScene(new Scene(vBox, 300.0d, 150.0d));
         final Manageable application = Launcher.APPLICATION_MANAGER.getApplication();
         primaryStage.setResizable(false);
-        primaryStage.setOnCloseRequest(event -> event.consume());
+        primaryStage.setOnCloseRequest(Event::consume);
         if (application.title() == null) {
             primaryStage.setTitle(Localization.getMessage("title.window"));
         } else {
@@ -126,17 +131,7 @@ public class Launcher extends Application {
         }
         primaryStage.show();
 
-        final Runnable runnable = () -> {
-            try {
-                Launcher.APPLICATION_MANAGER.setStage(primaryStage);
-                Launcher.APPLICATION_MANAGER.initNShow();
-            } catch (ApplicationException e) {
-                label.setText(Localization.getMessage("status.error"));
-                if (LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-        };
-        Launcher.APPLICATION_MANAGER.getExecutor().execute(runnable);
+        Launcher.APPLICATION_MANAGER.asyncInitNShow(primaryStage,
+            () -> label.setText(Localization.getMessage("status.error")));
     }
 }

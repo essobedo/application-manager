@@ -46,8 +46,9 @@ public class ZipFile {
      * @throws IOException
      */
     public void unzip(final File destDir) throws IOException {
-        if (!destDir.exists()) {
-            destDir.mkdir();
+        if (!destDir.exists() && !destDir.mkdir()) {
+            throw new IOException(String.format("Could not create the destination directory '%s'",
+                destDir.getAbsolutePath()));
         }
         try (final ZipInputStream zipIn = new ZipInputStream(new FileInputStream(this.file))) {
             ZipEntry entry = zipIn.getNextEntry();
@@ -56,7 +57,10 @@ public class ZipFile {
                 final File file = new File(destDir, entry.getName());
                 if (entry.isDirectory()) {
                     // if the entry is a directory, make the directory
-                    file.mkdir();
+                    if (!file.mkdir()) {
+                        throw new IOException(String.format("Could not create the sub-directory '%s'",
+                            file.getAbsolutePath()));
+                    }
                 } else {
                     // if the entry is a file, extracts it
                     ZipFile.extractFile(zipIn, file);
@@ -74,7 +78,7 @@ public class ZipFile {
      * @throws IOException
      */
     private static void extractFile(final ZipInputStream zipIn, final File file) throws IOException {
-        byte[] bytesIn = new byte[1024];
+        final byte[] bytesIn = new byte[1024];
         try (final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
             int read;
             while ((read = zipIn.read(bytesIn)) != -1) {

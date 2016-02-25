@@ -23,6 +23,7 @@ package com.gitlab.essobedo.appma.task;
  * @version $Id$
  * @since 1.0
  */
+@SuppressWarnings("PMD.AbstractNaming")
 public abstract class TaskProgress implements TaskObserver {
 
     protected final Task<?> task;

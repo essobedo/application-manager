@@ -36,6 +36,7 @@ import javafx.beans.property.StringProperty;
  * @version $Id$
  * @since 1.0
  */
+@SuppressWarnings("PMD.AbstractNaming")
 public abstract class TaskProgressFX<T> extends TaskProgress {
 
     private final DoubleProperty progress = new SimpleDoubleProperty(this, "progress", -1);

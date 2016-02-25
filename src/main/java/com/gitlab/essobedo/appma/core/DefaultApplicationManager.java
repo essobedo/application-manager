@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
@@ -61,6 +62,7 @@ class DefaultApplicationManager implements ApplicationManager {
      * The logger of the class.
      */
     private static final Logger LOG = Logger.getLogger(DefaultApplicationManager.class.getName());
+    private static final String COULD_NOT_UPGRADE_ILLEGAL_STATE = "Could not upgrade the application as the state is illegal: %s";
 
     /**
      * The arguments that have
@@ -107,12 +109,12 @@ class DefaultApplicationManager implements ApplicationManager {
      */
     private Stage stage;
 
-    public DefaultApplicationManager(final File root, final String[] arguments) throws ApplicationException {
-        this(root, arguments, null, null);
+    public DefaultApplicationManager(final File root, final String... arguments) throws ApplicationException {
+        this(root, null, null, arguments);
     }
 
-    DefaultApplicationManager(final File root, final String[] arguments,
-        final File patchTargetFile, final File patchContentTargetFolder) throws ApplicationException {
+    DefaultApplicationManager(final File root, final File patchTargetFile,
+        final File patchContentTargetFolder, final String... arguments) throws ApplicationException {
         this.root = root;
         this.arguments = arguments;
         this.patchTargetFile = patchTargetFile;
@@ -149,18 +151,10 @@ class DefaultApplicationManager implements ApplicationManager {
         }
     }
 
-    AsyncTaskExecutor getExecutor() {
-        return executor;
-    }
-
-    Configuration getConfiguration() {
+    private Configuration getConfiguration() {
         synchronized(this) {
             return configuration;
         }
-    }
-
-    void setStage(final Stage stage) {
-        this.stage = stage;
     }
 
     Manageable getApplication() {
@@ -321,8 +315,7 @@ class DefaultApplicationManager implements ApplicationManager {
     public boolean upgrade() {
         if (state.get() != ApplicationState.INITIALIZED) {
             if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, String.format(
-                    "Could not upgrade the application as the state is illegal: %s", state.get()));
+                LOG.log(Level.SEVERE, String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
             }
             return false;
         }
@@ -342,13 +335,11 @@ class DefaultApplicationManager implements ApplicationManager {
 
     void doUpgrade() throws ApplicationException {
         if (state.get() != ApplicationState.INITIALIZED) {
-            throw new ApplicationException(String.format(
-                "Could not upgrade the application as the state is illegal: %s", state.get()));
+            throw new ApplicationException(String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
         }
-        Manageable application = getApplication();
+        final Manageable application = getApplication();
         if (application == null) {
-            throw new ApplicationException(String.format(
-                "Could not upgrade the application as the state is illegal: %s", state.get()));
+            throw new ApplicationException(String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
         }
         final String className = application.getClass().getName();
         final VersionManager versionManager = getVersionManager(className,
@@ -359,17 +350,18 @@ class DefaultApplicationManager implements ApplicationManager {
         final File patchFolder = getPatchContent(application, versionManager);
         final String oldVersion = application.version();
         destroy();
-        application = null;
+        applyNShow(className, patchFolder, oldVersion);
+    }
+
+    private void applyNShow(final String className, final File patchFolder, final String oldVersion) throws ApplicationException {
         if (!state.compareAndSet(ApplicationState.DESTROYED, ApplicationState.UPGRADING)) {
-            throw new ApplicationException(String.format(
-                "Could not upgrade the application as the state is illegal: %s", state.get()));
+            throw new ApplicationException(String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
         }
         if (patchFolder == null || !applyPatch(className, patchFolder, oldVersion)) {
             return;
         }
         if (!state.compareAndSet(ApplicationState.UPGRADING, ApplicationState.DESTROYED)) {
-            throw new ApplicationException(String.format(
-                "Could not upgrade the application as the state is illegal: %s", state.get()));
+            throw new ApplicationException(String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
         }
         create();
         if (getStage() != null && getApplication().icon() != null) {
@@ -378,7 +370,22 @@ class DefaultApplicationManager implements ApplicationManager {
         initNShow();
     }
 
-    void initNShow() throws ApplicationException {
+    void asyncInitNShow(final Stage stage, final Runnable callbackOnError) throws ApplicationException {
+        final Runnable runnable = () -> {
+            try {
+                this.stage = stage;
+                initNShow();
+            } catch (ApplicationException e) {
+                Platform.runLater(callbackOnError::run);
+                if (LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+        };
+        executor.execute(runnable);
+    }
+
+    private void initNShow() throws ApplicationException {
         final Scene scene = init();
         if (getStage() != null) {
             Platform.runLater(() -> showApplication(scene));
@@ -400,15 +407,13 @@ class DefaultApplicationManager implements ApplicationManager {
         try {
             final ConfigurationFactory factory = new ConfigurationFactory(patchFolder);
             final Configuration config = factory.create();
-            final ClassLoader cl = getClassLoader(config);
-            Thread.currentThread().setContextClassLoader(cl);
-            final VersionManager versionManager = getVersionManager(className, cl);
+            final ClassLoader classLoader = getClassLoader(config);
+            Thread.currentThread().setContextClassLoader(classLoader);
+            final VersionManager versionManager = getVersionManager(className, classLoader);
             if (versionManager == null) {
                 throw new ApplicationException("No version manager could be found");
-            } else if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Applying the patch");
             }
-            final Configuration configuration = executeTask(
+            final Configuration configuration = executeTask("Applying the patch",
                 ((VersionManager<?>)versionManager).upgrade(patchFolder, root, oldVersion));
             reload(configuration);
         } catch (TaskInterruptedException e) {
@@ -437,24 +442,15 @@ class DefaultApplicationManager implements ApplicationManager {
         File file2Delete = null;
         try {
             Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, String.format("Getting the new version of the application '%s' version '%s'",
-                    application.name(),
-                    application.version()));
-            }
-            final File zipFile = patchTargetFile == null ?
-                File.createTempFile("upgrade", application.name()) : patchTargetFile;
+            final File zipFile = getPatchTargetFile();
             file2Delete = zipFile;
             try (OutputStream out = new FileOutputStream(zipFile)) {
-                executeTask(versionManager.store(application, out));
+                executeTask(String.format("Getting the new version of the application '%s'",
+                    application.name()), versionManager.store(application, out));
             }
-            destFolder = patchContentTargetFolder == null ?
-                new File(Files.createTempDirectory("upgrade").toString()) : patchContentTargetFolder;
+            destFolder = getPatchContentTargetFolder();
             final Task<Void> unzip = new UnzipTask(zipFile, destFolder);
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Unzipping the patch");
-            }
-            executeTask(unzip);
+            executeTask("Unzipping the patch", unzip);
         } catch (TaskInterruptedException e) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, "The task has been interrupted", e);
@@ -476,17 +472,33 @@ class DefaultApplicationManager implements ApplicationManager {
         }
         return destFolder;
     }
+    private File getPatchContentTargetFolder() throws IOException {
+        if (patchContentTargetFolder == null) {
+            return new File(Files.createTempDirectory("upgrade").toString());
+        } else {
+            return patchContentTargetFolder;
+        }
+    }
+    private File getPatchTargetFile() throws IOException {
+        if (patchTargetFile == null) {
+            return File.createTempFile("upgrade", "tmp");
+        } else {
+            return patchTargetFile;
+        }
+    }
 
-    private <T> T executeTask(final Task<T> task) throws ApplicationException, TaskInterruptedException {
+    private <T> T executeTask(final String messageInfo, final Task<T> task)
+                                throws ApplicationException, TaskInterruptedException {
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, messageInfo);
+        }
         if (getStage() == null) {
             new LogProgress(task);
         } else {
             final StatusBar bar = new StatusBar(task);
             final Scene scene = new Scene(bar, 300.0d, 150.0d);
 
-            Platform.runLater(() -> {
-                showStatusWindow(scene);
-            });
+            Platform.runLater(() ->  showStatusWindow(scene));
         }
         return task.execute();
     }
@@ -494,7 +506,7 @@ class DefaultApplicationManager implements ApplicationManager {
     private void showStatusWindow(final Scene scene) {
         final Stage primaryStage = getStage();
         primaryStage.setResizable(false);
-        primaryStage.setOnCloseRequest(event -> event.consume());
+        primaryStage.setOnCloseRequest(Event::consume);
         primaryStage.setScene(scene);
         final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
@@ -504,9 +516,7 @@ class DefaultApplicationManager implements ApplicationManager {
     private VersionManager<?> getVersionManager(final String className, final ClassLoader classLoader)
         throws ApplicationException {
         final ServiceLoader<VersionManager> loader = ServiceLoader.load(VersionManager.class, classLoader);
-        final Iterator<VersionManager> iterator = loader.iterator();
-        while (iterator.hasNext()) {
-            final VersionManager versionManager = iterator.next();
+        for (final VersionManager versionManager : loader) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, String.format("The version manager '%s' has ben found",
                     versionManager.getClass().getName()));
@@ -515,41 +525,47 @@ class DefaultApplicationManager implements ApplicationManager {
                 LOG.log(Level.FINE, String.format("The version manager '%s' has '%s' as generic super class",
                     versionManager.getClass().getName(), versionManager.getClass().getGenericSuperclass()));
             }
-            final Type[] types = versionManager.getClass().getGenericInterfaces().length == 0 ?
-                (versionManager.getClass().getGenericSuperclass() == null ? new Type[]{} :
-                new Type[]{versionManager.getClass().getGenericSuperclass()}) :
-                versionManager.getClass().getGenericInterfaces();
-            if (types.length != 1) {
-                continue;
-            }
-            if (!(types[0] instanceof ParameterizedType)) {
+            if (accept(className, classLoader, versionManager)) {
                 return versionManager;
             }
-            final ParameterizedType type = (ParameterizedType)types[0];
+        }
+        return null;
+    }
+
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
+    private boolean accept(final String className, final ClassLoader classLoader,
+                           final VersionManager versionManager) throws ApplicationException {
+
+        final Type[] types = versionManager.getClass().getGenericInterfaces().length == 0 ?
+            (versionManager.getClass().getGenericSuperclass() == null ? new Type[]{} :
+                new Type[]{versionManager.getClass().getGenericSuperclass()}) :
+            versionManager.getClass().getGenericInterfaces();
+        if (types.length == 1) {
+            final ParameterizedType type;
+            if (types[0] instanceof ParameterizedType) {
+                type = (ParameterizedType) types[0];
+            } else {
+                return true;
+            }
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, String.format("The version manager '%s' has '%s' type arguments",
                     versionManager.getClass().getName(), type.getActualTypeArguments().length));
             }
-            if (type.getActualTypeArguments().length != 1 ) {
-                continue;
-            }
-            final Class<?> typeClass = (Class<?>)type.getActualTypeArguments()[0];
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, String.format("The version manager '%s' is for the type '%s'",
-                    versionManager.getClass().getName(), typeClass));
-            }
-
-            try {
-                if (!typeClass.isAssignableFrom(Class.forName(className, false, classLoader))) {
-                    continue;
+            if (type.getActualTypeArguments().length == 1) {
+                final Class<?> typeClass = (Class<?>) type.getActualTypeArguments()[0];
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, String.format("The version manager '%s' is for the type '%s'",
+                        versionManager.getClass().getName(), typeClass));
                 }
-            } catch (ClassNotFoundException e) {
-                throw new ApplicationException(String.format("Could not find the class '%s'", className), e);
-            }
 
-            return versionManager;
+                try {
+                    return typeClass.isAssignableFrom(Class.forName(className, false, classLoader));
+                } catch (ClassNotFoundException e) {
+                    throw new ApplicationException(String.format("Could not find the class '%s'", className), e);
+                }
+            }
         }
-        return null;
+        return false;
     }
 
     private void exit() {

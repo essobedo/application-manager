@@ -29,13 +29,18 @@ import java.util.Observer;
 public interface TaskObserver extends Observer {
 
     default void update(final Observable observable, final Object object) {
-        if (!(observable instanceof Task)) {
+        final Task<?> task;
+        if (observable instanceof Task) {
+            task = (Task<?>)observable;
+        } else {
             throw new IllegalArgumentException("A task was expected");
-        } else if (!(object instanceof Task.Event)) {
+        }
+        final Task.Event event;
+        if (object instanceof Task.Event) {
+            event = (Task.Event)object;
+        } else {
             throw new IllegalArgumentException("A task event was expected");
         }
-        final Task<?> task = (Task<?>)observable;
-        final Task.Event event = (Task.Event)object;
         switch (event) {
             case PROGRESS:
                 updateProgress(task.getWorkDone(), task.getMax());

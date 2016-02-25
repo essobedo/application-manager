@@ -42,10 +42,10 @@ public class Folder {
      */
     private static final Logger LOG = Logger.getLogger(Folder.class.getName());
 
-    private final File folder;
+    private final File folderAsFile;
 
     public Folder(final File folder) {
-        this.folder = folder;
+        this.folderAsFile = folder;
     }
 
     /**
@@ -53,25 +53,12 @@ public class Folder {
      */
     public void delete() {
         try {
-            final Path directory = Paths.get(folder.getAbsolutePath());
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-
-            });
+            final Path directory = Paths.get(folderAsFile.getAbsolutePath());
+            Files.walkFileTree(directory, new DeleteFileVisitor());
         } catch (IOException e) {
             if (LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, String.format("Could not delete the content of the folder '%s'",
-                    folder.getAbsolutePath()), e);
+                    folderAsFile.getAbsolutePath()), e);
             }
         }
     }
@@ -82,28 +69,51 @@ public class Folder {
      */
     public void copy(final File destination) {
         try {
-            final Path directory = Paths.get(folder.getAbsolutePath());
+            final Path directory = Paths.get(folderAsFile.getAbsolutePath());
             final Path target = Paths.get(destination.getAbsolutePath());
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                    Files.copy(file, target.resolve(directory.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
-                    throws IOException {
-                    Files.copy(dir, target.resolve(directory.relativize(dir)), StandardCopyOption.REPLACE_EXISTING);
-                    return FileVisitResult.CONTINUE;
-                }
-
-            });
+            Files.walkFileTree(directory, new CopyFileVisitor(directory, target));
         } catch (IOException e) {
             if (LOG.isLoggable(Level.WARNING)) {
                 LOG.log(Level.WARNING, String.format("Could not copy the content of the folder '%s'",
-                    folder.getAbsolutePath()), e);
+                    folderAsFile.getAbsolutePath()), e);
             }
+        }
+    }
+
+    private static class DeleteFileVisitor extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    private static class CopyFileVisitor extends SimpleFileVisitor<Path> {
+        private final Path directory;
+        private final Path target;
+
+        CopyFileVisitor(final Path directory, final Path target) {
+            this.directory = directory;
+            this.target = target;
+        }
+
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+            Files.copy(file, target.resolve(directory.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+            throws IOException {
+            Files.copy(dir, target.resolve(directory.relativize(dir)), StandardCopyOption.REPLACE_EXISTING);
+            return FileVisitResult.CONTINUE;
         }
     }
 }

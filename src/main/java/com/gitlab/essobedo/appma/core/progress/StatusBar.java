@@ -35,7 +35,6 @@ import javafx.scene.layout.VBox;
 public class StatusBar extends VBox {
 
     private final Button button;
-    private final Progress progress;
 
     public StatusBar(final Task<?> task) {
         super(10);
@@ -47,7 +46,7 @@ public class StatusBar extends VBox {
         button.setOnAction(event -> task.cancel());
         button.setDisable(!task.cancelable());
         this.getChildren().addAll(label, bar, button);
-        this.progress = new Progress(task);
+        final Progress progress = new Progress(task);
         label.textProperty().bind(progress.messageProperty());
         bar.progressProperty().bind(progress.progressProperty());
         progress.overProperty().addListener((observable) -> {
@@ -58,7 +57,7 @@ public class StatusBar extends VBox {
 
     private class Progress extends TaskProgressFX {
 
-        private Progress(final Task<?> task) {
+        Progress(final Task<?> task) {
             super(task);
         }
 

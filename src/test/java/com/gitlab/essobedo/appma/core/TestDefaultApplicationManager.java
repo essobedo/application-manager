@@ -97,7 +97,7 @@ public class TestDefaultApplicationManager {
     public void testAppDefinedCompatibleJar() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.jar.ok"),
-            new String[]{temp.getAbsolutePath()});
+           temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -115,7 +115,7 @@ public class TestDefaultApplicationManager {
     public void testAppDefinedCompatible() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.ok"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -133,7 +133,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingInitJar() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.jar.init.ko"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooInitKO", application.name());
         assertEquals("1.0", application.version());
@@ -151,7 +151,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingInit() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.init.ko"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooInitKO", application.name());
         assertEquals("1.0", application.version());
@@ -169,7 +169,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingInit2Jar() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.jar.init.ko"),
-            new String[]{temp.getAbsolutePath(), "foo"});
+            temp.getAbsolutePath(), "foo");
         Manageable application = manager.create();
         assertEquals("FooInitKO2", application.name());
         assertEquals("2.0", application.version());
@@ -187,7 +187,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingInit2() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.init.ko"),
-            new String[]{temp.getAbsolutePath(), "foo"});
+            temp.getAbsolutePath(), "foo");
         Manageable application = manager.create();
         assertEquals("FooInitKO2", application.name());
         assertEquals("2.0", application.version());
@@ -205,7 +205,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingDestroyJar() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.jar.destroy.ko"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDestroyKO", application.name());
         assertEquals("1.0", application.version());
@@ -227,7 +227,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingDestroy() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.destroy.ko"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDestroyKO", application.name());
         assertEquals("1.0", application.version());
@@ -249,7 +249,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingDestroy2Jar() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.jar.destroy.ko"),
-            new String[]{temp.getAbsolutePath(), "foo"});
+            temp.getAbsolutePath(), "foo");
         Manageable application = manager.create();
         assertEquals("FooDestroyKO2", application.name());
         assertEquals("2.0", application.version());
@@ -271,7 +271,7 @@ public class TestDefaultApplicationManager {
     public void testAppFailingDestroy2() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.destroy.ko"),
-            new String[]{temp.getAbsolutePath(), "foo"});
+            temp.getAbsolutePath(), "foo");
         Manageable application = manager.create();
         assertEquals("FooDestroyKO2", application.name());
         assertEquals("2.0", application.version());
@@ -328,7 +328,7 @@ public class TestDefaultApplicationManager {
     public void testAppDepInvalid1() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.dep.ko1"),
-            new String[]{temp.getAbsolutePath()});
+           temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDep", application.name());
         assertEquals("1.0", application.version());
@@ -347,7 +347,7 @@ public class TestDefaultApplicationManager {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         try {
             new DefaultApplicationManager(getRootFolder("app.dep.ko2"),
-                new String[]{temp.getAbsolutePath()});
+                temp.getAbsolutePath());
             fail("An ApplicationException is expected");
         } catch (ApplicationException e) {
             // expected
@@ -358,7 +358,7 @@ public class TestDefaultApplicationManager {
     public void testAppDepInvalid3() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.dep.ko3"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         try {
             manager.create();
             fail("An ApplicationException is expected");
@@ -371,7 +371,7 @@ public class TestDefaultApplicationManager {
     public void testAppDepInvalid4() throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder("app.dep.ko4"),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDep", application.name());
         assertEquals("1.0", application.version());
@@ -392,7 +392,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+            patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDep", application.name());
         assertEquals("1.0", application.version());
@@ -445,7 +445,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok2";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+            patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDep", application.name());
         assertEquals("1.0", application.version());
@@ -499,7 +499,7 @@ public class TestDefaultApplicationManager {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         String folderName = "app.upgrade.ok3";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -524,7 +524,7 @@ public class TestDefaultApplicationManager {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         String folderName = "app.upgrade.ok4";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -549,7 +549,7 @@ public class TestDefaultApplicationManager {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         String folderName = "app.upgrade.ok5";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()});
+           temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -574,7 +574,7 @@ public class TestDefaultApplicationManager {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         String folderName = "app.upgrade.ok6";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -601,7 +601,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok7";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+            patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         ApplicationManager applicationManager = manager;
         Properties properties;
         try {
@@ -635,7 +635,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok8";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+            patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         ApplicationManager applicationManager = manager;
         Properties properties;
         try {
@@ -669,7 +669,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ok9";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+             patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         ApplicationManager applicationManager = manager;
         Properties properties;
         Manageable application = manager.create();
@@ -703,7 +703,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ko";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+            patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -739,7 +739,7 @@ public class TestDefaultApplicationManager {
         File patchContentTargetFolder = new File(Files.createTempDirectory("patchContentTargetFolder").toString());
         String folderName = "app.upgrade.ko2";
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()}, patchTargetFile, patchContentTargetFolder);
+            patchTargetFile, patchContentTargetFolder, temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("foo", application.name());
         assertEquals("1.0", application.version());
@@ -771,7 +771,7 @@ public class TestDefaultApplicationManager {
     private void testApp(String folderName) throws Exception {
         this.temp = File.createTempFile("TestDefaultApplicationManager", "tmp");
         DefaultApplicationManager manager = new DefaultApplicationManager(getRootFolder(folderName),
-            new String[]{temp.getAbsolutePath()});
+            temp.getAbsolutePath());
         Manageable application = manager.create();
         assertEquals("FooDep", application.name());
         assertEquals("1.0", application.version());

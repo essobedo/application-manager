@@ -37,7 +37,7 @@ public class Configuration {
 
     private final List<File> classpath;
 
-    public Configuration(final File[] classpath) {
+    public Configuration(final File... classpath) {
         this(Arrays.asList(classpath));
     }
 

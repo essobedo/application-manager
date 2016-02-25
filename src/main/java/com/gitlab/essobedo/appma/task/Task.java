@@ -27,6 +27,7 @@ import java.util.Observable;
  * @version $Id$
  * @since 1.0
  */
+@SuppressWarnings("PMD.AbstractNaming")
 public abstract class Task<T> extends Observable {
 
     private int max;

@@ -38,11 +38,11 @@ public interface Manageable {
 
     Image icon();
 
-    boolean accept(String[] arguments);
+    boolean accept(String... arguments);
 
     boolean isJavaFX();
 
-    Scene init(ApplicationManager manager, String[] arguments) throws ApplicationException;
+    Scene init(ApplicationManager manager, String... arguments) throws ApplicationException;
 
     void destroy() throws ApplicationException;
 }

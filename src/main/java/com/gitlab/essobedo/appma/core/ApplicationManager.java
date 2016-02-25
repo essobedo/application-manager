@@ -30,7 +30,7 @@ public interface ApplicationManager {
 
     Stage getStage();
 
-    Task<String> checkForUpdate();
+    Task checkForUpdate();
 
     boolean upgrade();
 

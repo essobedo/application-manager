@@ -35,6 +35,7 @@ import java.util.Properties;
  * @version $Id$
  * @since 1.0
  */
+@SuppressWarnings("PMD.UseUtilityClass")
 public class ConfigFromProperties extends Configuration {
 
     /**
