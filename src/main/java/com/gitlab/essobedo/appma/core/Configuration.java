@@ -29,26 +29,50 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * The class defining the configuration of the application manager.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
 public class Configuration {
 
+    /**
+     * The list of {@code File} representing the classpath to be loaded by the application manager.
+     */
     private final List<File> classpath;
 
+    /**
+     * Constructs a {@code Configuration} with the specified {@code classpath}.
+     * @param classpath the classpath to be loaded by the application manager.
+     */
     public Configuration(final File... classpath) {
         this(Arrays.asList(classpath));
     }
 
+    /**
+     * Constructs a {@code Configuration} with the specified {@code classpath}.
+     * @param classpath the classpath to be loaded by the application manager.
+     */
     public Configuration(final List<File> classpath) {
         this.classpath = Collections.unmodifiableList(classpath);
     }
 
+    /**
+     * Gives the classpath to be loaded by the application manager.
+     * @return The list of {@code File} representing the classpath to be loaded by
+     * the application manager.
+     */
     public List<File> getClasspath() {
         return this.classpath;
     }
 
+    /**
+     * Gives the classpath to be loaded by the application manager as {@link URL}.
+     * @return An array of {@link URL} representing the classpath to be loaded by
+     * the application manager.
+     * @throws ApplicationException in case a file of the classpath could not be found.
+     */
     public URL[] getClasspathAsUrls() throws ApplicationException {
         final URL[] urls = new URL[classpath.size()];
         for (int i = 0; i < urls.length; i++) {
@@ -63,7 +87,7 @@ public class Configuration {
                 throw new ApplicationException(String.format("Could not create a valid URL for the file '%s'",
                     file.getAbsolutePath()), e);
             }
-            try (final InputStream input = url.openStream()){
+            try (final InputStream input = url.openStream()) {
                 // Ensure that url is accessible
                 input.read();
             } catch (IOException e) {

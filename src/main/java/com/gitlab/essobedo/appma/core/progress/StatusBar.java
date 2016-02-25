@@ -28,14 +28,24 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 
 /**
+ * Class allowing to show any progress of a given task thanks to a progress bar and a label to display
+ * the status. It is used by default for all Java FX tasks.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public class StatusBar extends VBox {
+public final class StatusBar extends VBox {
 
+    /**
+     * The cancel button.
+     */
     private final Button button;
 
+    /**
+     * Constructs a {@code StatusBar} with the specified task.
+     * @param task the task for which we want to show the progress.
+     */
     public StatusBar(final Task<?> task) {
         super(10);
         this.setAlignment(Pos.CENTER);
@@ -55,8 +65,15 @@ public class StatusBar extends VBox {
         });
     }
 
+    /**
+     * Class allowing to disable the cancel button in case the task has already been canceled.
+     */
     private class Progress extends TaskProgressFX {
 
+        /**
+         * Constructs a {@code Progress} with the specified task.
+         * @param task the task for which we want to show the progress.
+         */
         Progress(final Task<?> task) {
             super(task);
         }

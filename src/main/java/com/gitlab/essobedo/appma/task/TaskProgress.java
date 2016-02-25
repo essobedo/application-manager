@@ -19,6 +19,8 @@
 package com.gitlab.essobedo.appma.task;
 
 /**
+ * The root class of the {@code TaskObserver}.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
@@ -26,10 +28,25 @@ package com.gitlab.essobedo.appma.task;
 @SuppressWarnings("PMD.AbstractNaming")
 public abstract class TaskProgress implements TaskObserver {
 
-    protected final Task<?> task;
+    /**
+     * The task to observe.
+     */
+    private final Task<?> task;
 
+    /**
+     * Constructs a {@code TaskProgress} with the specified task.
+     * @param task the task to observe.
+     */
     protected TaskProgress(final Task<?> task) {
         this.task = task;
         task.addObserver(this);
+    }
+
+    /**
+     * Gives the task to observe.
+     * @return the task to observe.
+     */
+    protected Task<?> getTask() {
+        return task;
     }
 }

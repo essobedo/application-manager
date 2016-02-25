@@ -25,15 +25,28 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * {@link Task} allowing to unzip of zip file into a given folder.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public class UnzipTask extends Task<Void> {
+public final class UnzipTask extends Task<Void> {
 
+    /**
+     * The zip file to unzip.
+     */
     private final File zipFile;
+    /**
+     * The destination folder.
+     */
     private final File destFolder;
 
+    /**
+     * Constructs a {@code UnzipTask} with the specified zip file and destination folder.
+     * @param zipFile the zip file to unzip.
+     * @param destFolder the destination folder.
+     */
     public UnzipTask(final File zipFile, final File destFolder) {
         super(Localization.getMessage("patch.unzip"));
         this.zipFile = zipFile;

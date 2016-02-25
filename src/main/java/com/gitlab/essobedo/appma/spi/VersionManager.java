@@ -25,15 +25,40 @@ import java.io.File;
 import java.io.OutputStream;
 
 /**
+ * The class allowing to check for new version of a given application and allowing to upgrade
+ * the application from a version to another.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
+ * @param <T> the type of the application that can manage the version manager.
  */
 public interface VersionManager<T extends Manageable> {
 
+    /**
+     * Gives the task allowing to check for a new version of the specified application.
+     * @param application the application for which we want to check for an update.
+     * @return the task allowing to check for a new version of the specified application.
+     * @throws ApplicationException if the task could not be created.
+     */
     Task<String> check(T application) throws ApplicationException;
 
+    /**
+     * Gives the task allowing to store the content of the patch.
+     * @param application the application for which we want the patch.
+     * @param target the stream in which the content of the patch should be written.
+     * @return the task allowing to store the content of the patch.
+     * @throws ApplicationException if the task could not be created.
+     */
     Task<Void> store(T application, OutputStream target) throws ApplicationException;
 
+    /**
+     * Gives the task allowing to upgrade the application.
+     * @param upgradeRoot the root folder that contains the content of the patch.
+     * @param appRoot the root folder of the application.
+     * @param oldVersion the previous version of the application.
+     * @return the task allowing to upgrade the application.
+     * @throws ApplicationException if the task could not be created.
+     */
     Task<Configuration> upgrade(File upgradeRoot, File appRoot, String oldVersion) throws ApplicationException;
 }

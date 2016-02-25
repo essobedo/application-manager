@@ -130,10 +130,11 @@ public class TestTask {
 
     @Test
     public void cancel() throws Exception {
+        AtomicBoolean cancelable = new AtomicBoolean();
         Task<?> task = new Task<Object>("foo") {
             @Override
             public boolean cancelable() {
-                return true;
+                return cancelable.get();
             }
 
             @Override
@@ -151,6 +152,12 @@ public class TestTask {
             called.incrementAndGet();
             canceled.set(((Task<?>)o).isCanceled());
         });
+        assertFalse(task.cancelable());
+        task.cancel();
+        assertFalse(task.isCanceled());
+        assertEquals(0, called.get());
+        assertEquals(task.isCanceled(), canceled.get());
+        cancelable.set(true);
         assertTrue(task.cancelable());
         assertFalse(task.isCanceled());
         assertEquals(0, called.get());

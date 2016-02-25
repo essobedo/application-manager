@@ -717,8 +717,10 @@ public class TestDefaultApplicationManager {
         ApplicationManager applicationManager = manager;
         try {
             System.setProperty("test.folder", folderName);
-            assertNull(applicationManager.checkForUpdate());
-        } finally {
+            applicationManager.checkForUpdate();
+            fail("An ApplicationException is expected");
+        } catch (ApplicationException e) {
+            // expected
             System.clearProperty("test.folder");
         }
         try {
@@ -753,8 +755,10 @@ public class TestDefaultApplicationManager {
         ApplicationManager applicationManager = manager;
         try {
             System.setProperty("test.folder", folderName);
-            assertNull(applicationManager.checkForUpdate());
-        } finally {
+            applicationManager.checkForUpdate();
+            fail("An ApplicationException is expected");
+        } catch (ApplicationException e) {
+            // expected
             System.clearProperty("test.folder");
         }
         try {

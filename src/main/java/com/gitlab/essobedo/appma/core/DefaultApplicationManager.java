@@ -52,6 +52,8 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
+ * The default implementation of {@link ApplicationManager}.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
@@ -62,57 +64,79 @@ class DefaultApplicationManager implements ApplicationManager {
      * The logger of the class.
      */
     private static final Logger LOG = Logger.getLogger(DefaultApplicationManager.class.getName());
-    private static final String COULD_NOT_UPGRADE_ILLEGAL_STATE = "Could not upgrade the application as the state is illegal: %s";
+    /**
+     * The format of the error message to use in case of an illegal state while upgrading.
+     */
+    private static final String COULD_NOT_UPGRADE_ILLEGAL_STATE =
+        "Could not upgrade the application as the state is illegal: %s";
 
     /**
-     * The arguments that have
+     * The arguments to pass to the application on initialization.
      */
     private final String[] arguments;
 
     /**
-     * The root directory of the application
+     * The root directory of the application.
      */
     private final File root;
 
     /**
-     * The file in which the compressed content of the patch should be stored in case of an upgrade
+     * The file in which the compressed content of the patch should be stored in case of an upgrade.
      */
     private final File patchTargetFile;
 
     /**
-     * The folder in which the uncompressed content of the patch should be stored in case of an upgrade
+     * The folder in which the uncompressed content of the patch should be stored in case of an upgrade.
      */
     private final File patchContentTargetFolder;
 
     /**
-     * The configuration file of the launcher
+     * The configuration of the application manager.
      */
     private Configuration configuration;
 
     /**
-     * The current application
+     * The current application.
      */
     private Manageable application;
 
     /**
-     * The current state of the application
+     * The current state of the application.
      */
     private final AtomicReference<ApplicationState> state = new AtomicReference<>(ApplicationState.DESTROYED);
 
     /**
-     * The executor used to execute all the asynchronous tasks
+     * The executor used to execute all the asynchronous tasks.
      */
     private final AsyncTaskExecutor executor = new AsyncTaskExecutor();
 
     /**
-     * The current stage
+     * The current stage.
      */
     private Stage stage;
 
-    public DefaultApplicationManager(final File root, final String... arguments) throws ApplicationException {
+    /**
+     * Constructs a {@code DefaultApplicationManager} with the specified root folder and arguments.
+     * @param root the root folder of the application.
+     * @param arguments the arguments to pass to the application on initialization.
+     * @throws ApplicationException The configuration could not be loaded.
+     */
+    DefaultApplicationManager(final File root, final String... arguments) throws ApplicationException {
         this(root, null, null, arguments);
     }
 
+    /**
+     * Constructs a {@code DefaultApplicationManager} with the specified root folder, patch file,
+     * patch content folder and arguments.
+     *
+     * <p><i>This constructor is for testing purpose only</i>
+     * @param root the root folder of the application.
+     * @param patchTargetFile The patch file to use in case of an upgrade.
+     * @param patchContentTargetFolder the folder to use to store the content of the patch in case
+     * of an upgrade.
+     * @param arguments the arguments to pass to the application on initialization.
+     * @throws ApplicationException The configuration could not be loaded.
+     */
     DefaultApplicationManager(final File root, final File patchTargetFile,
         final File patchContentTargetFolder, final String... arguments) throws ApplicationException {
         this.root = root;
@@ -122,17 +146,31 @@ class DefaultApplicationManager implements ApplicationManager {
         loadConfiguration();
     }
 
+    /**
+     * Loads the configuration from the root directory.
+     * @throws ApplicationException If the configuration could not be loaded.
+     */
     private void loadConfiguration() throws ApplicationException {
         final ConfigurationFactory factory = new ConfigurationFactory(root);
         setConfiguration(factory.create());
     }
 
+    /**
+     * Persists if needed the provided configuration and reloads the configuration from the
+     * root directory.
+     * @param configuration The configuration to store if needed.
+     * @throws ApplicationException If the configuration could not be re-loaded.
+     */
     private void reload(final Configuration configuration) throws ApplicationException {
+        final String configurationName = ConfigurationFactory.getConfigurationName();
+        final File configFile = new File(root, configurationName);
         if (configuration == null) {
+            if (configFile.exists() && !configFile.delete() && LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, String.format("The file '%s' could not be deleted",
+                    configFile.getAbsolutePath()));
+            }
             loadConfiguration();
         } else {
-            final String configurationName = ConfigurationFactory.getConfigurationName();
-            final File configFile = new File(root, configurationName);
             try {
                 ConfigFromProperties.store(configuration, configFile);
                 setConfiguration(configuration);
@@ -145,29 +183,48 @@ class DefaultApplicationManager implements ApplicationManager {
         }
     }
 
+    /**
+     * Sets the new configuration.
+     * @param configuration The new configuration.
+     */
     private void setConfiguration(final Configuration configuration) {
-        synchronized(this) {
+        synchronized (this) {
             this.configuration = configuration;
         }
     }
 
+    /**
+     * Gives the configuration of the application manager.
+     * @return the configuration of the application manager.
+     */
     private Configuration getConfiguration() {
-        synchronized(this) {
+        synchronized (this) {
             return configuration;
         }
     }
 
+    /**
+     * Gives the current application.
+     * @return the current application.
+     */
     Manageable getApplication() {
-        synchronized(this) {
+        synchronized (this) {
             return application;
         }
     }
 
     @Override
     public Stage getStage() {
-        return stage;
+        synchronized (this) {
+            return stage;
+        }
     }
 
+    /**
+     * Creates the application.
+     * @return The application that has been created by the application manager.
+     * @throws ApplicationException if the application could not be created.
+     */
     protected Manageable create() throws ApplicationException {
         if (!state.compareAndSet(ApplicationState.DESTROYED, ApplicationState.CREATING)) {
             throw new ApplicationException(String.format(
@@ -207,6 +264,12 @@ class DefaultApplicationManager implements ApplicationManager {
         return application;
     }
 
+    /**
+     * Initializes the application.
+     * @return The {@link Scene} of the initialized application in case of a Java FX application
+     * or {@code null} otherwise.
+     * @throws ApplicationException if the application could not be created.
+     */
     protected Scene init() throws ApplicationException {
         if (!state.compareAndSet(ApplicationState.CREATED, ApplicationState.INITIALIZING)) {
             throw new ApplicationException(String.format(
@@ -237,11 +300,21 @@ class DefaultApplicationManager implements ApplicationManager {
         return scene;
     }
 
+    /**
+     * Creates the {@link ClassLoader} corresponding to the specified {@link Configuration}.
+     * @param configuration The configuration to use to create the {@link ClassLoader}.
+     * @return The {@link ClassLoader} corresponding to the specified {@link Configuration}.
+     * @throws ApplicationException if the {@link ClassLoader} could not be created.
+     */
     private ClassLoader getClassLoader(final Configuration configuration) throws ApplicationException {
         final URL[] urls = configuration.getClasspathAsUrls();
         return new URLClassLoader(urls, getClass().getClassLoader());
     }
 
+    /**
+     * Destroys the application.
+     * @throws ApplicationException if the application could not be created.
+     */
     protected void destroy() throws ApplicationException {
         if (!state.compareAndSet(ApplicationState.INITIALIZED, ApplicationState.DESTROYING)) {
             throw new ApplicationException(String.format(
@@ -276,13 +349,10 @@ class DefaultApplicationManager implements ApplicationManager {
     }
 
     @Override
-    public Task<String> checkForUpdate() {
+    public Task<String> checkForUpdate() throws ApplicationException {
         final Manageable application = getApplication();
         if (application == null) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not check for update as there is no application running");
-            }
-            return null;
+            throw new ApplicationException("Could not check for update as there is no application running");
         }
         final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
         try {
@@ -290,10 +360,7 @@ class DefaultApplicationManager implements ApplicationManager {
             final VersionManager versionManager = getVersionManager(application.getClass().getName(),
                 application.getClass().getClassLoader());
             if (versionManager == null) {
-                if (LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "No version manager could be found");
-                }
-                return null;
+                throw new ApplicationException("No version manager could be found");
             }
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, String.format("Checking for update for the application '%s' version '%s'",
@@ -305,10 +372,10 @@ class DefaultApplicationManager implements ApplicationManager {
             if (LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Could not check for update", e);
             }
+            throw e;
         } finally {
             Thread.currentThread().setContextClassLoader(contextCL);
         }
-        return null;
     }
 
     @Override
@@ -333,6 +400,10 @@ class DefaultApplicationManager implements ApplicationManager {
         return true;
     }
 
+    /**
+     * Upgrades the application.
+     * @throws ApplicationException if the application could not be upgraded.
+     */
     void doUpgrade() throws ApplicationException {
         if (state.get() != ApplicationState.INITIALIZED) {
             throw new ApplicationException(String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
@@ -353,7 +424,15 @@ class DefaultApplicationManager implements ApplicationManager {
         applyNShow(className, patchFolder, oldVersion);
     }
 
-    private void applyNShow(final String className, final File patchFolder, final String oldVersion) throws ApplicationException {
+    /**
+     * Applies the patch and launches the upgraded application.
+     * @param className the name of the class of the application to upgrade.
+     * @param patchFolder the folder that contains the content of the patch.
+     * @param oldVersion the previous version of the application.
+     * @throws ApplicationException In case an error occurs.
+     */
+    private void applyNShow(final String className, final File patchFolder, final String oldVersion)
+                            throws ApplicationException {
         if (!state.compareAndSet(ApplicationState.DESTROYED, ApplicationState.UPGRADING)) {
             throw new ApplicationException(String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
         }
@@ -370,13 +449,22 @@ class DefaultApplicationManager implements ApplicationManager {
         initNShow();
     }
 
-    void asyncInitNShow(final Stage stage, final Runnable callbackOnError) throws ApplicationException {
+    /**
+     * Triggers an initialization of the application. It will be done asynchronously.
+     * @param stage the stage to use to initialize the application.
+     * @param callbackOnError callback to use in case of an error.
+     */
+    void asyncInitNShow(final Stage stage, final Runnable callbackOnError) {
         final Runnable runnable = () -> {
             try {
-                this.stage = stage;
+                synchronized (this) {
+                    this.stage = stage;
+                }
                 initNShow();
             } catch (ApplicationException e) {
-                Platform.runLater(callbackOnError::run);
+                if (callbackOnError != null) {
+                    Platform.runLater(callbackOnError::run);
+                }
                 if (LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
@@ -385,6 +473,10 @@ class DefaultApplicationManager implements ApplicationManager {
         executor.execute(runnable);
     }
 
+    /**
+     * Initializes and shows the application.
+     * @throws ApplicationException in case the application could not be initialized.
+     */
     private void initNShow() throws ApplicationException {
         final Scene scene = init();
         if (getStage() != null) {
@@ -392,6 +484,10 @@ class DefaultApplicationManager implements ApplicationManager {
         }
     }
 
+    /**
+     * Shows the application in the middle of the screen.
+     * @param scene the scene to display in the middle of the screen.
+     */
     private void showApplication(final Scene scene) {
         final Stage primaryStage = getStage();
         primaryStage.setResizable(true);
@@ -401,6 +497,14 @@ class DefaultApplicationManager implements ApplicationManager {
         primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
     }
 
+    /**
+     * Applies the patch.
+     * @param className The name of the application to upgrade.
+     * @param patchFolder the folder containing the content of the patch.
+     * @param oldVersion the previous version of the application.
+     * @return {@code true} if the patch could be applied, {@code false} otherwise.
+     * @throws ApplicationException in case the patch could not be applied.
+     */
     private boolean applyPatch(final String className, final File patchFolder,
                                final String oldVersion) throws ApplicationException {
         final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
@@ -414,7 +518,7 @@ class DefaultApplicationManager implements ApplicationManager {
                 throw new ApplicationException("No version manager could be found");
             }
             final Configuration configuration = executeTask("Applying the patch",
-                ((VersionManager<?>)versionManager).upgrade(patchFolder, root, oldVersion));
+                ((VersionManager<?>) versionManager).upgrade(patchFolder, root, oldVersion));
             reload(configuration);
         } catch (TaskInterruptedException e) {
             if (LOG.isLoggable(Level.FINE)) {
@@ -436,7 +540,15 @@ class DefaultApplicationManager implements ApplicationManager {
         return true;
     }
 
-    private File getPatchContent(final Manageable application, final VersionManager versionManager) throws ApplicationException {
+    /**
+     * Gets the content of the patch and stores it into a folder.
+     * @param application the application for which we want to get the patch.
+     * @param versionManager the version manager to use to get the content of the patch.
+     * @return a {@code File} corresponding to the folder that contains the content of the patch.
+     * @throws ApplicationException if the content of the patch could not be retrieved.
+     */
+    private File getPatchContent(final Manageable application, final VersionManager versionManager)
+                                 throws ApplicationException {
         File destFolder;
         final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
         File file2Delete = null;
@@ -472,6 +584,12 @@ class DefaultApplicationManager implements ApplicationManager {
         }
         return destFolder;
     }
+
+    /**
+     * Gives the folder that will contain the content of the patch.
+     * @return the folder that will contain the content of the patch.
+     * @throws IOException in case the temporary directory could not be created.
+     */
     private File getPatchContentTargetFolder() throws IOException {
         if (patchContentTargetFolder == null) {
             return new File(Files.createTempDirectory("upgrade").toString());
@@ -479,6 +597,12 @@ class DefaultApplicationManager implements ApplicationManager {
             return patchContentTargetFolder;
         }
     }
+
+    /**
+     * Gives the file that will contain the patch.
+     * @return the file that will contain the patch.
+     * @throws IOException in case the temporary file could not be created.
+     */
     private File getPatchTargetFile() throws IOException {
         if (patchTargetFile == null) {
             return File.createTempFile("upgrade", "tmp");
@@ -487,6 +611,18 @@ class DefaultApplicationManager implements ApplicationManager {
         }
     }
 
+    /**
+     * Executes the specified task and use {@link LogProgress} or {@link StatusBar} to
+     * provide information about how the task is progressing. If the application is
+     * a Java FX application, it will use the {@link StatusBar} otherwise it will use the
+     * {@link LogProgress}.
+     * @param messageInfo the info message to log before executing the task.
+     * @param task the task to execute.
+     * @param <T> the return type of the task to execute.
+     * @return The result of the task
+     * @throws ApplicationException if the task fails.
+     * @throws TaskInterruptedException if the task has been interrupted.
+     */
     private <T> T executeTask(final String messageInfo, final Task<T> task)
                                 throws ApplicationException, TaskInterruptedException {
         if (LOG.isLoggable(Level.INFO)) {
@@ -503,6 +639,10 @@ class DefaultApplicationManager implements ApplicationManager {
         return task.execute();
     }
 
+    /**
+     * Show the window providing the status of a task in the middle of the screen.
+     * @param scene the window to display in the middle of the screen.
+     */
     private void showStatusWindow(final Scene scene) {
         final Stage primaryStage = getStage();
         primaryStage.setResizable(false);
@@ -513,6 +653,15 @@ class DefaultApplicationManager implements ApplicationManager {
         primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
     }
 
+    /**
+     * Gives the version manager that could be found using the given class loader and that matches
+     * with the specified full qualified name of the application.
+     * @param className the full qualified name of the application for which we look for a version manager.
+     * @param classLoader the classloader to use to find the version manager.
+     * @return the version manager that matches with the specified criteria, {@code null} if none could
+     * be found.
+     * @throws ApplicationException if an error occurs while looking for a version manager.
+     */
     private VersionManager<?> getVersionManager(final String className, final ClassLoader classLoader)
         throws ApplicationException {
         final ServiceLoader<VersionManager> loader = ServiceLoader.load(VersionManager.class, classLoader);
@@ -532,14 +681,19 @@ class DefaultApplicationManager implements ApplicationManager {
         return null;
     }
 
+    /**
+     * Indicates whether the given {@link VersionManager} matches with the specified criteria.
+     * @param className the full qualified name of the application for which we want a version manager.
+     * @param classLoader the classloader to use to check the version manager.
+     * @param versionManager the version manager to check.
+     * @return {@code true} if the version manager matches, {@code false} otherwise.
+     * @throws ApplicationException if the version manager could not be checked.
+     */
     @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private boolean accept(final String className, final ClassLoader classLoader,
                            final VersionManager versionManager) throws ApplicationException {
 
-        final Type[] types = versionManager.getClass().getGenericInterfaces().length == 0 ?
-            (versionManager.getClass().getGenericSuperclass() == null ? new Type[]{} :
-                new Type[]{versionManager.getClass().getGenericSuperclass()}) :
-            versionManager.getClass().getGenericInterfaces();
+        final Type[] types = getTypes(versionManager);
         if (types.length == 1) {
             final ParameterizedType type;
             if (types[0] instanceof ParameterizedType) {
@@ -568,6 +722,27 @@ class DefaultApplicationManager implements ApplicationManager {
         return false;
     }
 
+    /**
+     * Gives the generic types of the specified version manager.
+     * @param versionManager the version manager for which we want the generic types.
+     * @return the generic types of the provided version manager.
+     */
+    private Type[] getTypes(final VersionManager versionManager) {
+        final Class<?> versionManagerClass = versionManager.getClass();
+        if (versionManagerClass.getGenericInterfaces().length == 0) {
+            if (versionManagerClass.getGenericSuperclass() == null) {
+                return new Type[]{};
+            } else {
+                return new Type[]{versionManagerClass.getGenericSuperclass()};
+            }
+        } else {
+            return versionManagerClass.getGenericInterfaces();
+        }
+    }
+
+    /**
+     * Exit the whole application properly.
+     */
     private void exit() {
         executor.stop();
         if (getStage() != null) {

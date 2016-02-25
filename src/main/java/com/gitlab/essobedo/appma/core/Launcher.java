@@ -19,7 +19,6 @@
 package com.gitlab.essobedo.appma.core;
 
 import com.gitlab.essobedo.appma.core.io.RootFolder;
-import com.gitlab.essobedo.appma.exception.ApplicationException;
 import com.gitlab.essobedo.appma.i18n.Localization;
 import com.gitlab.essobedo.appma.spi.Manageable;
 import java.io.File;
@@ -54,18 +53,22 @@ public class Launcher extends Application {
 
     /**
      * The name of the system parameter allowing to externalize the
-     * configuration of the logger
+     * configuration of the logger.
      */
     private static final String PARAM_LOGGER = "essobedo.logger.config";
 
     /**
-     * The current application manager
+     * The current application manager.
      */
-    @SuppressWarnings({"PMD.VariableNamingConventions","PMD.MisleadingVariableName","PMD.SuspiciousConstantFieldName"})
-    private static DefaultApplicationManager APPLICATION_MANAGER;
+    private static DefaultApplicationManager applicationManager;
 
+    /**
+     * The main method.
+     * @param args the arguments.
+     * @throws IOException in case the logger could not be set up.
+     */
     public static void main(final String... args) throws IOException {
-        setupLogging();
+        setUpLogger();
 
         DefaultApplicationManager applicationManager = null;
         Manageable application = null;
@@ -74,7 +77,7 @@ public class Launcher extends Application {
             applicationManager = new DefaultApplicationManager(root.getLocation(), args);
             application = applicationManager.create();
             if (application.isJavaFX()) {
-                APPLICATION_MANAGER = applicationManager;
+                Launcher.applicationManager = applicationManager;
                 launch(args);
             } else {
                 applicationManager.init();
@@ -96,21 +99,28 @@ public class Launcher extends Application {
             System.exit(0);
         }
     }
-    private static void setupLogging() throws IOException {
+
+    /**
+     * Sets up the logger. It will first check if the system property {@code essobedo.logger.config}
+     * has been set, if so it will use it as configuration of the logger otherwise it will get the
+     * file {@code /conf/logging.properties} from the classloader.
+     * @throws IOException if the logger could not be set up.
+     */
+    private static void setUpLogger() throws IOException {
         final File logs = new File("logs");
         if (logs.exists() || logs.mkdir()) {
             final LogManager manager = LogManager.getLogManager();
             final String loggerPath = System.getProperty(Launcher.PARAM_LOGGER);
-            try (final InputStream input = loggerPath == null ?
-                Launcher.class.getResourceAsStream("/conf/logging.properties") :
-                new FileInputStream(loggerPath)) {
+            try (final InputStream input = loggerPath == null
+                ? Launcher.class.getResourceAsStream("/conf/logging.properties")
+                : new FileInputStream(loggerPath)) {
                 manager.readConfiguration(input);
             }
         }
     }
 
     @Override
-    public void start(final Stage primaryStage) throws ApplicationException {
+    public void start(final Stage primaryStage) {
         final VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.CENTER);
         final ProgressBar bar = new ProgressBar();
@@ -118,7 +128,7 @@ public class Launcher extends Application {
         final Label label = new Label(Localization.getMessage("status.loading"));
         vBox.getChildren().addAll(label, bar);
         primaryStage.setScene(new Scene(vBox, 300.0d, 150.0d));
-        final Manageable application = Launcher.APPLICATION_MANAGER.getApplication();
+        final Manageable application = Launcher.applicationManager.getApplication();
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(Event::consume);
         if (application.title() == null) {
@@ -131,7 +141,7 @@ public class Launcher extends Application {
         }
         primaryStage.show();
 
-        Launcher.APPLICATION_MANAGER.asyncInitNShow(primaryStage,
+        Launcher.applicationManager.asyncInitNShow(primaryStage,
             () -> label.setText(Localization.getMessage("status.error")));
     }
 }

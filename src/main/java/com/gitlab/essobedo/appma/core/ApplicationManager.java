@@ -18,21 +18,42 @@
  */
 package com.gitlab.essobedo.appma.core;
 
+import com.gitlab.essobedo.appma.exception.ApplicationException;
 import com.gitlab.essobedo.appma.task.Task;
 import javafx.stage.Stage;
 
 /**
+ * The facade allowing the managed applications to interact with the application manager.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
 public interface ApplicationManager {
 
+    /**
+     * Gives the current {@link Stage}.
+     * @return The current {@link Stage} in case of a Java FX application, {@code null} otherwise.
+     */
     Stage getStage();
 
-    Task checkForUpdate();
+    /**
+     * Gives the task allowing to check if there is a new version of the application.
+     * @return The task allowing to check for a new version.
+     * @throws ApplicationException in case the task could not be created.
+     */
+    Task<String> checkForUpdate() throws ApplicationException;
 
+    /**
+     * Triggers an upgrade of the application. The upgrade will be down asynchronously by the
+     * application manager.
+     * @return {@code true} if the upgrade could be triggered, {@code false} otherwise.
+     */
     boolean upgrade();
 
+    /**
+     * Callback allowing to notify the application manager that an application exit has been
+     * requested.
+     */
     void onExit();
 }

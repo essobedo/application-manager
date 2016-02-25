@@ -24,17 +24,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Class allowing to log any progress of a given task. It is used by default for all
+ * non Java FX tasks.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public class LogProgress extends TaskProgress {
+public final class LogProgress extends TaskProgress {
 
     /**
      * The logger of the class.
      */
     private static final Logger LOG = Logger.getLogger(LogProgress.class.getName());
 
+    /**
+     * Constructs a {@code LogProgress} with the specified task.
+     * @param task the task for which we want to log the progress.
+     */
     public LogProgress(final Task<?> task) {
         super(task);
     }
@@ -43,21 +50,21 @@ public class LogProgress extends TaskProgress {
     public void updateProgress(final int done, final int max) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(Level.INFO, String.format("Task '%s': %d out of %d has been done",
-                task.getName(), done, max));
+                getTask().getName(), done, max));
         }
     }
 
     @Override
     public void updateMessage(final String message) {
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, String.format("Task '%s': %s", task.getName(), message));
+            LOG.log(Level.INFO, String.format("Task '%s': %s", getTask().getName(), message));
         }
     }
 
     @Override
     public void cancel() {
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, String.format("The task '%s' has been canceled", task.getName()));
+            LOG.log(Level.INFO, String.format("The task '%s' has been canceled", getTask().getName()));
         }
     }
 }

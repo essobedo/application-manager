@@ -27,23 +27,32 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
+ * The class allowing to unzip a given zip file.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public class ZipFile {
+public final class ZipFile {
 
+    /**
+     * The zip file to unzip.
+     */
     private final File file;
 
+    /**
+     * Constructs a {@code ZipFile} with the specified file.
+     * @param file the zip file to unzip.
+     */
     public ZipFile(final File file) {
         this.file = file;
     }
 
     /**
-     * Extracts the content of the zip file to a directory specified by
-     * destDirectory (will be created if does not exists)
-     * @param destDir
-     * @throws IOException
+     * Extracts the content of the zip file into the specified folder. The folder will be
+     * created automatically if it does not exist.
+     * @param destDir the destination folder.
+     * @throws IOException In case the file could not be unzipped.
      */
     public void unzip(final File destDir) throws IOException {
         if (!destDir.exists() && !destDir.mkdir()) {
@@ -72,10 +81,10 @@ public class ZipFile {
     }
 
     /**
-     * Extracts a zip entry (file entry)
-     * @param zipIn
-     * @param file
-     * @throws IOException
+     * Extracts a zip entry (file entry).
+     * @param zipIn the zip entry to extract.
+     * @param file the destination file
+     * @throws IOException In case the zip entry could not be extracted.
      */
     private static void extractFile(final ZipInputStream zipIn, final File file) throws IOException {
         final byte[] bytesIn = new byte[1024];

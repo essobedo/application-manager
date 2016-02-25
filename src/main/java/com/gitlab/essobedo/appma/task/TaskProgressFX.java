@@ -32,32 +32,84 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
+ * The root class of the {@code TaskObserver} in case of a Java FX application.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
+ * @param <T> The return type of the task.
  */
 @SuppressWarnings("PMD.AbstractNaming")
 public abstract class TaskProgressFX<T> extends TaskProgress {
 
+    /**
+     * The progress of the task.
+     */
     private final DoubleProperty progress = new SimpleDoubleProperty(this, "progress", -1);
+    /**
+     * The status of the task.
+     */
     private final StringProperty message = new SimpleStringProperty(this, "message", "");
+    /**
+     * Indicates whether the task is over.
+     */
     private final BooleanProperty over = new SimpleBooleanProperty(this, "over", false);
 
+    /**
+     * Constructs a {@code TaskProgressFX} with the specified task.
+     * @param task the task to observe.
+     */
     public TaskProgressFX(final Task<T> task) {
         super(task);
     }
 
-    public final double getProgress() { return progress.get(); }
-    public final ReadOnlyDoubleProperty progressProperty() { return progress; }
-
-    public final String getMessage() { return message.get(); }
-    public final ReadOnlyStringProperty messageProperty() { return message; }
-
-    public final boolean isOver() { return over.get(); }
-    public final ReadOnlyBooleanProperty overProperty() { return over; }
-
+    /**
+     * Gives the current progress of the task.
+     * @return the current progress of the task.
+     */
+    public final double getProgress() {
+        return progress.get();
+    }
+    /**
+     * Gives the current progress of the task.
+     * @return the current progress of the task.
+     */
+    public final ReadOnlyDoubleProperty progressProperty() {
+        return progress;
+    }
+    /**
+     * Gives the current status of the task.
+     * @return the current status of the task.
+     */
+    public final String getMessage() {
+        return message.get();
+    }
+    /**
+     * Gives the current status of the task.
+     * @return the current status of the task.
+     */
+    public final ReadOnlyStringProperty messageProperty() {
+        return message;
+    }
+    /**
+     * Indicates whether the task is over.
+     * @return {@code true} if the task is over, {@code false} otherwise.
+     */
+    public final boolean isOver() {
+        return over.get();
+    }
+    /**
+     * Indicates whether the task is over.
+     * @return {@code true} if the task is over, {@code false} otherwise.
+     */
+    public final ReadOnlyBooleanProperty overProperty() {
+        return over;
+    }
+    /**
+     * Cancels the underlying task if possible.
+     */
     public final void cancelTask() {
-        task.cancel();
+        getTask().cancel();
     }
 
     @Override
@@ -73,18 +125,20 @@ public abstract class TaskProgressFX<T> extends TaskProgress {
 
     @Override
     public final void updateMessage(final String message) {
-        Platform.runLater(() -> {
-            this.message.setValue(message);
-        });
+        Platform.runLater(() -> this.message.setValue(message));
     }
 
+    /**
+     * Executes the underlying task.
+     * @return the result of the task.
+     * @throws ApplicationException if an error occurs while executing the task.
+     * @throws TaskInterruptedException if the task has been interrupted.
+     */
     public final T execute() throws ApplicationException, TaskInterruptedException {
         try {
-            return (T) task.execute();
+            return (T) getTask().execute();
         } finally {
-            Platform.runLater(() -> {
-                this.over.setValue(true);
-            });
+            Platform.runLater(() -> this.over.setValue(true));
         }
     }
 }

@@ -19,10 +19,43 @@
 package com.gitlab.essobedo.appma.core;
 
 /**
+ * All the existing states of an application.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
 enum ApplicationState {
-    CREATING, CREATED, INITIALIZING, INITIALIZED, UPGRADING, DESTROYING, DESTROYED, UNKNOWN
+    /**
+     * The application manager is creating the application.
+     */
+    CREATING,
+    /**
+     * The application has been created.
+     */
+    CREATED,
+    /**
+     * The application manager is initializing the application.
+     */
+    INITIALIZING,
+    /**
+     * The application has been initialized.
+     */
+    INITIALIZED,
+    /**
+     * The application manager is upgrading the application.
+     */
+    UPGRADING,
+    /**
+     * The application manager is destroying the application.
+     */
+    DESTROYING,
+    /**
+     * The application has been destroyed.
+     */
+    DESTROYED,
+    /**
+     * The application is in an unknown state.
+     */
+    UNKNOWN
 }

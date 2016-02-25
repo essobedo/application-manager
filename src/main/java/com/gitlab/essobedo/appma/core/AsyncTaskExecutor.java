@@ -22,18 +22,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
+ * Class allowing to execute all the tasks of the application manager asynchronously.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
 class AsyncTaskExecutor {
 
+    /**
+     * The executor used to launch the tasks asynchronously.
+     */
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Executes a specified task asynchronously.
+     * @param runnable the task to execute asynchronously.
+     */
     public void execute(final Runnable runnable) {
         executor.execute(runnable);
     }
 
+    /**
+     * Stops the executor.
+     */
     public void stop() {
         executor.shutdown();
     }

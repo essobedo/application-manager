@@ -30,6 +30,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Factory class allowing to create a {@code Configuration} object.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
@@ -38,12 +40,12 @@ public final class ConfigurationFactory {
 
     /**
      * The name of the system parameter allowing to specify the name of the
-     * configuration file
+     * configuration file.
      */
     private static final String PARAM_CONFIG = "essobedo.appma.core.config";
 
     /**
-     * The name of the default configuration file
+     * The name of the default configuration file.
      */
     private static final String DEFAULT_CONFIG = "appma.properties";
 
@@ -52,16 +54,33 @@ public final class ConfigurationFactory {
      */
     private static final Logger LOG = Logger.getLogger(ConfigurationFactory.class.getName());
 
-    private final File defaultFolder;
+    /**
+     * The parent folder from which all the relative paths must start.
+     */
+    private final File parentFolder;
 
-    public ConfigurationFactory(final File defaultFolder){
-        this.defaultFolder = defaultFolder;
+    /**
+     * Constructs a {@code ConfigurationFactory} using the specified parent folder.
+     * @param parentFolder The folder from which all the relative paths must start.
+     */
+    public ConfigurationFactory(final File parentFolder) {
+        this.parentFolder = parentFolder;
     }
 
+    /**
+     * Creates a {@code Configuration} corresponding to the current context. If
+     * a configuration file whose name is {@link #getConfigurationName()} is available
+     * directly under the parent folder, it will use this file to create the {@code Configuration}.
+     * Otherwise it will check if there is jar files directly under the parent folder if so
+     * it will build the {@code Configuration} based on the list of jar files that could be found
+     * otherwise it will use the parent folder to create the {@code Configuration}.
+     * @return The {@code Configuration} that matches the best with the current context.
+     * @throws ApplicationException If an error occurred while creating the {@code Configuration}
+     */
     public Configuration create() throws ApplicationException {
         final String configuration = ConfigurationFactory.getConfigurationName();
         final Configuration config;
-        final File configFile = new File(defaultFolder, configuration);
+        final File configFile = new File(parentFolder, configuration);
         if (configFile.exists()) {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, String.format("The configuration could be found at '%s'",
@@ -74,13 +93,13 @@ public final class ConfigurationFactory {
                 throw new ApplicationException(String.format("Could not load the configuration from '%s'",
                     configFile.getAbsolutePath()), e);
             }
-            config = new ConfigFromProperties(defaultFolder, properties);
+            config = new ConfigFromProperties(parentFolder, properties);
             if (config.getClasspath().isEmpty()) {
                 throw new ApplicationException(String.format("No classpath defined in '%s'",
                     configFile.getAbsolutePath()));
             }
         } else {
-            final File folder = defaultFolder;
+            final File folder = parentFolder;
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.log(Level.INFO, String.format("No configuration could be found using the directory '%s'",
                     folder.getAbsolutePath()));
@@ -95,6 +114,10 @@ public final class ConfigurationFactory {
         return config;
     }
 
+    /**
+     * Guves the name of the default configuration file.
+     * @return the name of the default configuration file.
+     */
     public static String getConfigurationName() {
         return System.getProperty(ConfigurationFactory.PARAM_CONFIG,
             ConfigurationFactory.DEFAULT_CONFIG);

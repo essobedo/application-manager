@@ -29,21 +29,33 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
+ * Class allowing to get the root folder that contains a given class.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public class RootFolder {
+public final class RootFolder {
 
     /**
-     * The class for which we want to know the folder in which it is located
+     * The class for which we want to know its parent folder.
      */
     private final Class<?> clazz;
 
+    /**
+     * Constructs a {@code RootFolder} with the specified class.
+     * @param clazz the class for which we want to know its parent folder.
+     */
     public RootFolder(final Class<?> clazz) {
         this.clazz = clazz;
     }
 
+    /**
+     * Gives the folder that contains the class. In case the class is located in a folder
+     * it will give the folder from which the packages start. In case the class is located
+     * in a jar file it will give the folder that contains the jar file.
+     * @return the {@code File} corresponding to the folder that contains the class.
+     */
     public File getLocation() {
         final String name = clazz.getName();
         final String resource = String.format("/%s.class", name.replace('.', '/'));

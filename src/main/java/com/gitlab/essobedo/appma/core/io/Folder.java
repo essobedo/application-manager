@@ -31,25 +31,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Class allowing to manipulate a folder and its content.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
-public class Folder {
+public final class Folder {
 
     /**
      * The logger of the class.
      */
     private static final Logger LOG = Logger.getLogger(Folder.class.getName());
 
+    /**
+     * The folder to manipulate.
+     */
     private final File folderAsFile;
 
+    /**
+     * Constructs a {@code Folder} using the specified {@code File} as corresponding
+     * folder.
+     * @param folder the folder to manipulate.
+     */
     public Folder(final File folder) {
         this.folderAsFile = folder;
     }
 
     /**
-     * Deletes the folder.
+     * Deletes the folder and its content.
      */
     public void delete() {
         try {
@@ -64,7 +74,7 @@ public class Folder {
     }
 
     /**
-     * Copies the folder.
+     * Copies the folder and its content to the specified location.
      * @param destination the folder in which the content of the folder will be copied
      */
     public void copy(final File destination) {
@@ -80,6 +90,9 @@ public class Folder {
         }
     }
 
+    /**
+     * Class allowing to delete the content of the folder.
+     */
     private static class DeleteFileVisitor extends SimpleFileVisitor<Path> {
         @Override
         public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
@@ -94,10 +107,24 @@ public class Folder {
         }
     }
 
+    /**
+     * Class allowing to copy the content of the folder.
+     */
     private static class CopyFileVisitor extends SimpleFileVisitor<Path> {
+        /**
+         * The source directory.
+         */
         private final Path directory;
+        /**
+         * The target directory.
+         */
         private final Path target;
 
+        /**
+         * Constructs a {@code CopyFileVisitor} using the specified source and target directories.
+         * @param directory the source directory.
+         * @param target the target directory.
+         */
         CopyFileVisitor(final Path directory, final Path target) {
             this.directory = directory;
             this.target = target;

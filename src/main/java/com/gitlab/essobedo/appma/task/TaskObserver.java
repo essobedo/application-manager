@@ -22,22 +22,25 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
+ * Defines the {@link Observer} of a {@link Task}.
+ *
  * @author Nicolas Filotto (nicolas.filotto@gmail.com)
  * @version $Id$
  * @since 1.0
  */
 public interface TaskObserver extends Observer {
 
+    @Override
     default void update(final Observable observable, final Object object) {
         final Task<?> task;
         if (observable instanceof Task) {
-            task = (Task<?>)observable;
+            task = (Task<?>) observable;
         } else {
             throw new IllegalArgumentException("A task was expected");
         }
         final Task.Event event;
         if (object instanceof Task.Event) {
-            event = (Task.Event)object;
+            event = (Task.Event) object;
         } else {
             throw new IllegalArgumentException("A task event was expected");
         }
@@ -49,18 +52,28 @@ public interface TaskObserver extends Observer {
                 updateMessage(task.getMessage());
                 break;
             case CANCEL:
-                if (task.cancelable()) {
-                    cancel();
-                }
+                cancel();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown event");
         }
     }
 
+    /**
+     * Notifies that the current progress of the task has changed.
+     * @param done the work already done.
+     * @param max the maximum work to be done.
+     */
     void updateProgress(int done, int max);
 
+    /**
+     * Notifies that the status of the task has changed.
+     * @param message the status of the task.
+     */
     void updateMessage(String message);
 
+    /**
+     * Notifies that the task has been canceled.
+     */
     void cancel();
 }
