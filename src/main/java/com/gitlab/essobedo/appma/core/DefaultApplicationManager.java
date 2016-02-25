@@ -261,6 +261,9 @@ class DefaultApplicationManager implements ApplicationManager {
                 LOG.log(Level.INFO, String.format("Destroy the application '%s' version '%s'", application.name(),
                     application.version()));
             }
+            if (getStage() != null && application.icon() != null) {
+                Platform.runLater(() -> getStage().getIcons().removeAll(application.icon()));
+            }
             application.destroy();
             synchronized (this) {
                 this.application = null;
@@ -369,6 +372,9 @@ class DefaultApplicationManager implements ApplicationManager {
                 "Could not upgrade the application as the state is illegal: %s", state.get()));
         }
         create();
+        if (getStage() != null && getApplication().icon() != null) {
+            Platform.runLater(() -> getStage().getIcons().add(getApplication().icon()));
+        }
         initNShow();
     }
 
