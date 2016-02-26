@@ -37,11 +37,6 @@ public final class Localization {
     private static final Logger LOG = Logger.getLogger(Localization.class.getName());
 
     /**
-     * A singleton containing all the messages of the application.
-     */
-    private static final Localization INSTANCE = new Localization("appma.i18n.messages");
-
-    /**
      * The {@code ResourceBundle} containing all the messages of the application.
      */
     private final ResourceBundle resourceBundle;
@@ -88,6 +83,16 @@ public final class Localization {
      * @return The message internationalized.
      */
     public static String getMessage(final String key, final Object... params) {
-        return INSTANCE.getLocalizedMessage(key, params);
+        return LocalizationHolder.INSTANCE.getLocalizedMessage(key, params);
+    }
+
+    /**
+     * Class allowing to manage the lazy loading of the singleton.
+     */
+    private static class LocalizationHolder {
+        /**
+         * A singleton containing all the messages of the application.
+         */
+        private static final Localization INSTANCE = new Localization("appma.i18n.messages");
     }
 }
