@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -121,6 +122,21 @@ public class Launcher extends Application {
 
     @Override
     public void start(final Stage primaryStage) {
+        start(Launcher.applicationManager, primaryStage);
+    }
+
+    /**
+     * Starts the launcher using the specified application manager.
+     * @param applicationManager the application manager to use.
+     * @param primaryStage the primary stage for this application, onto which
+     * the application scene can be set. The primary stage will be embedded in
+     * the browser if the application was launched as an applet.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages and will not be embedded in the browser.
+     * @return The {@link Future} object allowing to be notified once the application has
+     * been initialized and shown.
+     */
+    static Future<Void> start(final DefaultApplicationManager applicationManager, final Stage primaryStage) {
         final VBox vBox = new VBox(10);
         vBox.setAlignment(Pos.CENTER);
         final ProgressBar bar = new ProgressBar();
@@ -128,7 +144,7 @@ public class Launcher extends Application {
         final Label label = new Label(Localization.getMessage("status.loading"));
         vBox.getChildren().addAll(label, bar);
         primaryStage.setScene(new Scene(vBox, 300.0d, 150.0d));
-        final Manageable application = Launcher.applicationManager.getApplication();
+        final Manageable application = applicationManager.getApplication();
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(Event::consume);
         if (application.title() == null) {
@@ -141,7 +157,7 @@ public class Launcher extends Application {
         }
         primaryStage.show();
 
-        Launcher.applicationManager.asyncInitNShow(primaryStage,
+        return applicationManager.asyncInitNShow(primaryStage,
             () -> label.setText(Localization.getMessage("status.error")));
     }
 }

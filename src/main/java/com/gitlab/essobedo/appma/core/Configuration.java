@@ -78,7 +78,7 @@ public class Configuration {
         for (int i = 0; i < urls.length; i++) {
             final File file = classpath.get(i);
             if (!file.exists()) {
-                throw new ApplicationException(String.format("The path '%s' doesn't exist", file.getAbsolutePath()));
+                throw new ApplicationException(String.format("The file '%s' doesn't exist", file.getAbsolutePath()));
             }
             final URL url;
             try {
@@ -89,7 +89,10 @@ public class Configuration {
             }
             try (final InputStream input = url.openStream()) {
                 // Ensure that url is accessible
-                input.read();
+                if (input.read() == -1) {
+                    throw new ApplicationException(String.format("The file '%s' is empty",
+                        file.getAbsolutePath()));
+                }
             } catch (IOException e) {
                 throw new ApplicationException(String.format("Could not access to '%s'", file.getAbsolutePath()), e);
             }

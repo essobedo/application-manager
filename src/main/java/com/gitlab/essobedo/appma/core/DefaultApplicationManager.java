@@ -41,6 +41,9 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ServiceLoader;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -379,14 +382,8 @@ class DefaultApplicationManager implements ApplicationManager {
     }
 
     @Override
-    public boolean upgrade() {
-        if (state.get() != ApplicationState.INITIALIZED) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, String.format(COULD_NOT_UPGRADE_ILLEGAL_STATE, state.get()));
-            }
-            return false;
-        }
-        final Runnable runnable = () -> {
+    public Future<Void> upgrade() {
+        final Callable<Void> task = () -> {
             try {
                 doUpgrade();
             } catch (ApplicationException e) {
@@ -394,10 +391,13 @@ class DefaultApplicationManager implements ApplicationManager {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
                 exit();
+                throw e;
             }
+            return null;
         };
-        executor.execute(runnable);
-        return true;
+        final FutureTask<Void> future = new FutureTask<>(task);
+        executor.execute(future);
+        return future;
     }
 
     /**
@@ -453,9 +453,10 @@ class DefaultApplicationManager implements ApplicationManager {
      * Triggers an initialization of the application. It will be done asynchronously.
      * @param stage the stage to use to initialize the application.
      * @param callbackOnError callback to use in case of an error.
+     * @return The {@link Future} object allowing to be notified once the task is over.
      */
-    void asyncInitNShow(final Stage stage, final Runnable callbackOnError) {
-        final Runnable runnable = () -> {
+    Future<Void> asyncInitNShow(final Stage stage, final Runnable callbackOnError) {
+        final Callable<Void> task = () -> {
             try {
                 synchronized (this) {
                     this.stage = stage;
@@ -468,9 +469,13 @@ class DefaultApplicationManager implements ApplicationManager {
                 if (LOG.isLoggable(Level.SEVERE)) {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
+                throw e;
             }
+            return null;
         };
-        executor.execute(runnable);
+        final FutureTask<Void> future = new FutureTask<>(task);
+        executor.execute(future);
+        return future;
     }
 
     /**

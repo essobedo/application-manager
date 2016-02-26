@@ -20,6 +20,7 @@ package com.gitlab.essobedo.appma.core;
 
 import com.gitlab.essobedo.appma.exception.ApplicationException;
 import com.gitlab.essobedo.appma.task.Task;
+import java.util.concurrent.Future;
 import javafx.stage.Stage;
 
 /**
@@ -47,9 +48,9 @@ public interface ApplicationManager {
     /**
      * Triggers an upgrade of the application. The upgrade will be down asynchronously by the
      * application manager.
-     * @return {@code true} if the upgrade could be triggered, {@code false} otherwise.
+     * @return The {@link Future} representing the upgrade task.
      */
-    boolean upgrade();
+    Future<Void> upgrade();
 
     /**
      * Callback allowing to notify the application manager that an application exit has been

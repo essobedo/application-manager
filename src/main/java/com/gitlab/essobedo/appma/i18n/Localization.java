@@ -18,6 +18,7 @@
  */
 package com.gitlab.essobedo.appma.i18n;
 
+import java.util.IllegalFormatException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -36,13 +37,22 @@ public final class Localization {
     private static final Logger LOG = Logger.getLogger(Localization.class.getName());
 
     /**
+     * A singleton containing all the messages of the application.
+     */
+    private static final Localization INSTANCE = new Localization("appma.i18n.messages");
+
+    /**
      * The {@code ResourceBundle} containing all the messages of the application.
      */
-    private static final ResourceBundle RESOURCE_BUNDLE;
+    private final ResourceBundle resourceBundle;
 
-    static {
+    /**
+     * Default constructor.
+     * @param baseName the base name of the resource bundle
+     */
+    public Localization(final String baseName) {
         try {
-            RESOURCE_BUNDLE = ResourceBundle.getBundle("appma.i18n.messages");
+            resourceBundle = ResourceBundle.getBundle(baseName);
         } catch (RuntimeException e) {
             if (LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Could not access to the resource bundle", e);
@@ -52,9 +62,22 @@ public final class Localization {
     }
 
     /**
-     * Default constructor.
+     * Gives the messages corresponding to the specified key using the given parameters.
+     *
+     * @param key The key of the message to retrieve.
+     * @param params The parameters to use to construct the message.
+     * @return The message internationalized.
      */
-    private Localization() {
+    public String getLocalizedMessage(final String key, final Object... params) {
+        try {
+            final String message = resourceBundle.getString(key);
+            return String.format(message, params);
+        } catch (MissingResourceException | IllegalFormatException e) {
+            if (LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "Could not find the message corresponding to the key " + key);
+            }
+        }
+        return key;
     }
 
     /**
@@ -65,14 +88,6 @@ public final class Localization {
      * @return The message internationalized.
      */
     public static String getMessage(final String key, final Object... params) {
-        try {
-            final String message = RESOURCE_BUNDLE.getString(key);
-            return String.format(message, params);
-        } catch (MissingResourceException e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Could not find the message corresponding to the key " + key);
-            }
-        }
-        return key;
+        return INSTANCE.getLocalizedMessage(key, params);
     }
 }
