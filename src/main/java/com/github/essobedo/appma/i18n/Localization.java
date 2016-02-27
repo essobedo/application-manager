@@ -19,6 +19,7 @@
 package com.github.essobedo.appma.i18n;
 
 import java.util.IllegalFormatException;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -45,9 +46,18 @@ public final class Localization {
      * Default constructor.
      * @param baseName the base name of the resource bundle
      */
-    public Localization(final String baseName) {
+    Localization(final String baseName) {
+        this(baseName, Localization.class.getClassLoader());
+    }
+
+    /**
+     * Default constructor.
+     * @param baseName the base name of the resource bundle
+     * @param loader the class loader from which to load the resource bundle
+     */
+    public Localization(final String baseName, final ClassLoader loader) {
         try {
-            resourceBundle = ResourceBundle.getBundle(baseName);
+            resourceBundle = ResourceBundle.getBundle(baseName, Locale.getDefault(), loader);
         } catch (RuntimeException e) {
             if (LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(Level.SEVERE, "Could not access to the resource bundle", e);
