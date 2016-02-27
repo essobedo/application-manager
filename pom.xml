@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.gitlab.essobedo</groupId>
+    <groupId>com.github.essobedo</groupId>
     <artifactId>application-manager</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>The application manager allowing to dynamically launch and upgrade applications</name>
     <scm>
-        <connection>scm:git:git://gitlab.com/essobedo/application-manager</connection>
-        <developerConnection>scm:git:git@gitlab.com:essobedo/application-manager.git</developerConnection>
-        <url>https://gitlab.com/essobedo/application-manager</url>
+        <connection>scm:git:git://github.com/essobedo/application-manager</connection>
+        <developerConnection>scm:git:git@github.com:essobedo/application-manager.git</developerConnection>
+        <url>https://github.com/essobedo/application-manager</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -131,7 +131,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.gitlab.essobedo.appma.core.Launcher</mainClass>
+                            <mainClass>com.github.essobedo.appma.core.Launcher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
