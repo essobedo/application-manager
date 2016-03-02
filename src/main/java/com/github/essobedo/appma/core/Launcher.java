@@ -19,10 +19,9 @@
 package com.github.essobedo.appma.core;
 
 import com.github.essobedo.appma.core.io.RootFolder;
-import com.github.essobedo.appma.spi.Manageable;
 import com.github.essobedo.appma.i18n.Localization;
+import com.github.essobedo.appma.spi.Manageable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Future;
@@ -57,7 +56,7 @@ public final class Launcher extends Application {
      * The name of the system parameter allowing to externalize the
      * configuration of the logger.
      */
-    private static final String PARAM_LOGGER = "essobedo.logger.config";
+    private static final String PARAM_LOGGER = "java.util.logging.config.file";
 
     /**
      * The current application manager.
@@ -103,19 +102,20 @@ public final class Launcher extends Application {
     }
 
     /**
-     * Sets up the logger. It will first check if the system property {@code essobedo.logger.config}
-     * has been set, if so it will use it as configuration of the logger otherwise it will get the
+     * Sets up the logger. It will first check if the system property {@code java.util.logging.config.file}
+     * has been set, if so it will let the JDK initialize the logger otherwise it will get the
      * file {@code /conf/logging.properties} from the classloader.
      * @throws IOException if the logger could not be set up.
      */
     private static void setUpLogger() throws IOException {
         final File logs = new File("logs");
         if (logs.exists() || logs.mkdir()) {
+            if (System.getProperty(Launcher.PARAM_LOGGER) != null) {
+                // Let the JDK configure the logger
+                return;
+            }
             final LogManager manager = LogManager.getLogManager();
-            final String loggerPath = System.getProperty(Launcher.PARAM_LOGGER);
-            try (final InputStream input = loggerPath == null
-                ? Launcher.class.getResourceAsStream("/conf/logging.properties")
-                : new FileInputStream(loggerPath)) {
+            try (final InputStream input = Launcher.class.getResourceAsStream("/conf/logging.properties")) {
                 manager.readConfiguration(input);
             }
         }
