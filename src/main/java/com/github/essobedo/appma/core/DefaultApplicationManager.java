@@ -531,23 +531,31 @@ class DefaultApplicationManager implements ApplicationManager {
      * @throws ApplicationException in case the application could not be initialized.
      */
     private void initNShow() throws ApplicationException {
+        final Manageable application = getApplication();
         final Scene scene = init();
         if (getStage() != null) {
-            Platform.runLater(() -> showApplication(scene));
+            Platform.runLater(() -> showApplication(application, scene));
         }
     }
 
     /**
      * Shows the application in the middle of the screen.
+     * @param application the application to show
      * @param scene the scene to display in the middle of the screen.
      */
-    private void showApplication(final Scene scene) {
-        final Stage primaryStage = getStage();
-        primaryStage.setResizable(true);
-        primaryStage.setScene(scene);
-        final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
-        primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
+    private void showApplication(final Manageable application, final Scene scene) {
+        final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
+            final Stage primaryStage = getStage();
+            primaryStage.setResizable(true);
+            primaryStage.setScene(scene);
+            final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);
+            primaryStage.setY((primScreenBounds.getHeight() - primaryStage.getHeight()) / 2);
+        } finally {
+            Thread.currentThread().setContextClassLoader(contextCL);
+        }
     }
 
     /**
