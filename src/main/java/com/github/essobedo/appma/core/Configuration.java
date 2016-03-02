@@ -90,8 +90,7 @@ public class Configuration {
             try (final InputStream input = url.openStream()) {
                 // Ensure that url is accessible
                 if (input.read() == -1) {
-                    throw new ApplicationException(String.format("The file '%s' is empty",
-                        file.getAbsolutePath()));
+                    throw new ApplicationException(String.format("The file '%s' is empty", file.getAbsolutePath()));
                 }
             } catch (IOException e) {
                 throw new ApplicationException(String.format("Could not access to '%s'", file.getAbsolutePath()), e);

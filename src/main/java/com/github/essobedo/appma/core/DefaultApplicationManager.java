@@ -18,17 +18,20 @@
  */
 package com.github.essobedo.appma.core;
 
-import com.github.essobedo.appma.core.progress.LogProgress;
-import com.github.essobedo.appma.core.progress.StatusBar;
 import com.github.essobedo.appma.core.config.ConfigFromProperties;
 import com.github.essobedo.appma.core.config.ConfigurationFactory;
 import com.github.essobedo.appma.core.io.Folder;
+import com.github.essobedo.appma.core.progress.LogProgress;
+import com.github.essobedo.appma.core.progress.StatusBar;
+import com.github.essobedo.appma.core.util.Classpath;
 import com.github.essobedo.appma.core.zip.UnzipTask;
 import com.github.essobedo.appma.exception.ApplicationException;
 import com.github.essobedo.appma.exception.TaskInterruptedException;
 import com.github.essobedo.appma.spi.Manageable;
 import com.github.essobedo.appma.spi.VersionManager;
 import com.github.essobedo.appma.task.Task;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,7 +42,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -67,6 +69,7 @@ class DefaultApplicationManager implements ApplicationManager {
      * The logger of the class.
      */
     private static final Logger LOG = Logger.getLogger(DefaultApplicationManager.class.getName());
+
     /**
      * The format of the error message to use in case of an illegal state while upgrading.
      */
@@ -236,10 +239,8 @@ class DefaultApplicationManager implements ApplicationManager {
 
         final ClassLoader classLoader = getClassLoader(getConfiguration());
         final ServiceLoader<Manageable> loader = ServiceLoader.load(Manageable.class, classLoader);
-        final Iterator<Manageable> iterator = loader.iterator();
         Manageable application = null;
-        while (iterator.hasNext()) {
-            final Manageable app = iterator.next();
+        for (final Manageable app : loader) {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(Level.FINE, String.format("The application '%s' version '%s' has ben found", app.name(),
                     app.version()));
@@ -335,6 +336,8 @@ class DefaultApplicationManager implements ApplicationManager {
                 Platform.runLater(() -> getStage().getIcons().removeAll(application.icon()));
             }
             application.destroy();
+            closeClasspath(getConfiguration());
+            close(application.getClass().getClassLoader());
             synchronized (this) {
                 this.application = null;
             }
@@ -348,6 +351,51 @@ class DefaultApplicationManager implements ApplicationManager {
             throw new ApplicationException("Could not destroy the application", e);
         } finally {
             Thread.currentThread().setContextClassLoader(contextCL);
+        }
+    }
+
+    /**
+     * Closes all the resources corresponding to the classpath.
+     * @param configuration The configuration from which it extracts the URLs corresponding to the classpath.
+     */
+    private void closeClasspath(final Configuration configuration) {
+        if (configuration == null) {
+            return;
+        }
+        try {
+            final Classpath classpath = new Classpath(configuration.getClasspathAsUrls());
+            classpath.release();
+        } catch (ApplicationException e) {
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Could not close the jar files used by the classloader", e);
+            }
+        }
+    }
+
+    /**
+     * Closes the classloader if possible in order to properly release the resources.
+     * @param classLoader The classloader to close.
+     */
+    @SuppressWarnings("PMD.DoNotCallGarbageCollectionExplicitly")
+    @SuppressFBWarnings(value = "DM_GC", justification = "Needed to properly release the jar files")
+    private void close(final ClassLoader classLoader) {
+        if (classLoader == null) {
+            return;
+        }
+        if (classLoader instanceof Closeable) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "Closing the classloader");
+            }
+            try {
+                ((Closeable) classLoader).close();
+            } catch (IOException e) {
+                if (LOG.isLoggable(Level.WARNING)) {
+                    LOG.log(Level.WARNING, "Could not close properly the classloader", e);
+                }
+            } finally {
+                // Ensure that there is no more references relying on this classloader.
+                System.gc();
+            }
         }
     }
 
@@ -513,10 +561,12 @@ class DefaultApplicationManager implements ApplicationManager {
     private boolean applyPatch(final String className, final File patchFolder,
                                final String oldVersion) throws ApplicationException {
         final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+        Configuration config = null;
+        ClassLoader classLoader = null;
         try {
             final ConfigurationFactory factory = new ConfigurationFactory(patchFolder);
-            final Configuration config = factory.create();
-            final ClassLoader classLoader = getClassLoader(config);
+            config = factory.create();
+            classLoader = getClassLoader(config);
             Thread.currentThread().setContextClassLoader(classLoader);
             final VersionManager versionManager = getVersionManager(className, classLoader);
             if (versionManager == null) {
@@ -539,6 +589,8 @@ class DefaultApplicationManager implements ApplicationManager {
             throw new ApplicationException("Could not upgrade the application", e);
         } finally {
             Thread.currentThread().setContextClassLoader(contextCL);
+            closeClasspath(config);
+            close(classLoader);
             final Folder folder = new Folder(patchFolder);
             folder.delete();
         }

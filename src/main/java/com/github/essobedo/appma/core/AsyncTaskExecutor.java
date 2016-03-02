@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
  * @version $Id$
  * @since 1.0
  */
-class AsyncTaskExecutor {
+final class AsyncTaskExecutor {
 
     /**
      * The executor used to launch the tasks asynchronously.

@@ -45,7 +45,7 @@ import javafx.stage.Stage;
  * @version $Id$
  * @since 1.0
  */
-public class Launcher extends Application {
+public final class Launcher extends Application {
 
     /**
      * The logger of the class.
