@@ -33,6 +33,7 @@ import javafx.application.Application;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
@@ -142,7 +143,10 @@ public final class Launcher extends Application {
         final ProgressBar bar = new ProgressBar();
         bar.setMinWidth(250);
         final Label label = new Label(Localization.getMessage("status.loading"));
-        vBox.getChildren().addAll(label, bar);
+        final Button button = new Button(Localization.getMessage("close"));
+        button.setOnAction((event) -> applicationManager.onExit());
+        button.setDisable(true);
+        vBox.getChildren().addAll(label, bar, button);
         primaryStage.setScene(new Scene(vBox, 300.0d, 150.0d));
         final Manageable application = applicationManager.getApplication();
         primaryStage.setResizable(false);
@@ -158,6 +162,10 @@ public final class Launcher extends Application {
         primaryStage.show();
 
         return applicationManager.asyncInitNShow(primaryStage,
-            () -> label.setText(Localization.getMessage("status.error")));
+            () -> {
+                label.setText(Localization.getMessage("status.error"));
+                button.setDisable(false);
+            }
+        );
     }
 }
