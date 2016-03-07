@@ -571,8 +571,8 @@ class DefaultApplicationManager implements ApplicationManager {
             Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
             final Stage primaryStage = getStage();
             primaryStage.setResizable(true);
-            final Predicate<Void> predicate = getOnCloseRequestPredicate();
             primaryStage.setOnCloseRequest(event -> {
+                final Predicate<Void> predicate = getOnCloseRequestPredicate();
                 if (predicate == null || predicate.test(null)) {
                     // Can exit
                     onExit();
