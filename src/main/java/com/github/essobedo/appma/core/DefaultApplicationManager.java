@@ -47,6 +47,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -120,6 +121,11 @@ class DefaultApplicationManager implements ApplicationManager {
      * The current stage.
      */
     private Stage stage;
+
+    /**
+     * The predicate to test to know if the application can exit or not.
+     */
+    private Predicate<Void> onCloseRequestPredicate;
 
     /**
      * Constructs a {@code DefaultApplicationManager} with the specified root folder and arguments.
@@ -223,6 +229,22 @@ class DefaultApplicationManager implements ApplicationManager {
     public Stage getStage() {
         synchronized (this) {
             return stage;
+        }
+    }
+
+    @Override
+    public void setOnCloseRequestPredicate(final Predicate<Void> predicate) {
+        synchronized (this) {
+            this.onCloseRequestPredicate = predicate;
+        }
+    }
+
+    /**
+     * @return The predicate to test to know if the application can exit or not.
+     */
+    private Predicate<Void> getOnCloseRequestPredicate() {
+        synchronized (this) {
+            return onCloseRequestPredicate;
         }
     }
 
@@ -549,6 +571,16 @@ class DefaultApplicationManager implements ApplicationManager {
             Thread.currentThread().setContextClassLoader(application.getClass().getClassLoader());
             final Stage primaryStage = getStage();
             primaryStage.setResizable(true);
+            final Predicate<Void> predicate = getOnCloseRequestPredicate();
+            primaryStage.setOnCloseRequest(event -> {
+                if (predicate == null || predicate.test(null)) {
+                    // Can exit
+                    onExit();
+                } else {
+                    // Discard the event to prevent closing the window.
+                    event.consume();
+                }
+            });
             primaryStage.setScene(scene);
             final Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
             primaryStage.setX((primScreenBounds.getWidth() - primaryStage.getWidth()) / 2);

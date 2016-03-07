@@ -21,6 +21,7 @@ package com.github.essobedo.appma.core;
 import com.github.essobedo.appma.exception.ApplicationException;
 import com.github.essobedo.appma.task.Task;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 import javafx.stage.Stage;
 
 /**
@@ -57,4 +58,12 @@ public interface ApplicationManager {
      * requested.
      */
     void onExit();
+
+    /**
+     * Provides the predicate to test in order to known whether the application can exit or not.
+     * If {@link Predicate#test(Object)} return {@code true}, the application will be allowed to
+     * exit, {@code false} otherwise.
+     * @param predicate The predicate to test.
+     */
+    void setOnCloseRequestPredicate(Predicate<Void> predicate);
 }
