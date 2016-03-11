@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  * <p>This is a hack needed to properly release jar files from which we get resources thanks to
  * {@link ClassLoader#getResource(String)}, {@link ClassLoader#getResourceAsStream(String)} or
  * {@link ClassLoader#getResources(String)}. Indeed by default, the {@link JarFile} instances are automatically stored
- * into the cache of @code JarFileFactory} in case we call directly or indirectly one of the previous methods and those
+ * into the cache of {@code JarFileFactory} in case we call directly or indirectly one of the previous methods and those
  * instances are not release even if we call {@link java.net.URLClassLoader#close()}, so the purpose of this hack is to
  * remove them from the cache to fully release them.
  *
