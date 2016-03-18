@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<rss version="0.91">
+  <channel>
+    <title>Application Manager main Project - Checkstyle report</title>
+    <link>https://github.com/essobedo/application-manager</link>
+    <description>Application Manager main Project - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2016</copyright>
+    <item>
+      <title>File: 36,
+             Errors: 0,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>https://github.com/essobedo/application-manager/checkstyle.html</link>
+      <description>
+        <p>Click <a href="https://github.com/essobedo/application-manager/checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.spi.Manageable.java">com/github/essobedo/appma/spi/Manageable.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.ApplicationState.java">com/github/essobedo/appma/core/ApplicationState.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.config.ConfigurationFactory.java">com/github/essobedo/appma/core/config/ConfigurationFactory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.i18n.Localization.java">com/github/essobedo/appma/i18n/Localization.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.io.package-info.java">com/github/essobedo/appma/core/io/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.Configuration.java">com/github/essobedo/appma/core/Configuration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.progress.package-info.java">com/github/essobedo/appma/core/progress/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.config.ConfigFromProperties.java">com/github/essobedo/appma/core/config/ConfigFromProperties.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.config.package-info.java">com/github/essobedo/appma/core/config/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.progress.LogProgress.java">com/github/essobedo/appma/core/progress/LogProgress.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.zip.package-info.java">com/github/essobedo/appma/core/zip/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.io.Folder.java">com/github/essobedo/appma/core/io/Folder.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.ApplicationManager.java">com/github/essobedo/appma/core/ApplicationManager.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.AsyncTaskExecutor.java">com/github/essobedo/appma/core/AsyncTaskExecutor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.task.TaskProgress.java">com/github/essobedo/appma/task/TaskProgress.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.zip.ZipFile.java">com/github/essobedo/appma/core/zip/ZipFile.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.zip.UnzipTask.java">com/github/essobedo/appma/core/zip/UnzipTask.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#conf.logging.properties">conf/logging.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.package-info.java">com/github/essobedo/appma/core/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.exception.TaskInterruptedException.java">com/github/essobedo/appma/exception/TaskInterruptedException.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.task.TaskObserver.java">com/github/essobedo/appma/task/TaskObserver.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.io.RootFolder.java">com/github/essobedo/appma/core/io/RootFolder.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.util.Classpath.java">com/github/essobedo/appma/core/util/Classpath.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.spi.VersionManager.java">com/github/essobedo/appma/spi/VersionManager.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.exception.ApplicationException.java">com/github/essobedo/appma/exception/ApplicationException.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.DefaultApplicationManager.java">com/github/essobedo/appma/core/DefaultApplicationManager.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#appma.i18n.messages.properties">appma/i18n/messages.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.i18n.package-info.java">com/github/essobedo/appma/i18n/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.exception.package-info.java">com/github/essobedo/appma/exception/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.task.package-info.java">com/github/essobedo/appma/task/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.Launcher.java">com/github/essobedo/appma/core/Launcher.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.progress.StatusBar.java">com/github/essobedo/appma/core/progress/StatusBar.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.task.TaskProgressFX.java">com/github/essobedo/appma/task/TaskProgressFX.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.task.Task.java">com/github/essobedo/appma/task/Task.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.spi.package-info.java">com/github/essobedo/appma/spi/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/essobedo/application-manager/checkstyle.html#com.github.essobedo.appma.core.util.package-info.java">com/github/essobedo/appma/core/util/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+

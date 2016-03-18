@@ -1,0 +1,10 @@
+com.github.essobedo.appma.core
+com.github.essobedo.appma.core.config
+com.github.essobedo.appma.core.io
+com.github.essobedo.appma.core.progress
+com.github.essobedo.appma.core.util
+com.github.essobedo.appma.core.zip
+com.github.essobedo.appma.exception
+com.github.essobedo.appma.i18n
+com.github.essobedo.appma.spi
+com.github.essobedo.appma.task

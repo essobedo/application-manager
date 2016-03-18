@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RootFolder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Application Manager main Project</a> &gt; <a href="index.source.html" class="el_package">com.github.essobedo.appma.core.io</a> &gt; <span class="el_source">RootFolder.java</span></div><h1>RootFolder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 essobedo.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.github.essobedo.appma.core.io;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+/**
+ * Class allowing to get the root folder that contains a given class.
+ *
+ * @author Nicolas Filotto (nicolas.filotto@gmail.com)
+ * @version $Id$
+ * @since 1.0
+ */
+public final class RootFolder {
+
+    /**
+     * The class for which we want to know its parent folder.
+     */
+    private final Class&lt;?&gt; clazz;
+
+    /**
+     * Constructs a {@code RootFolder} with the specified class.
+     * @param clazz the class for which we want to know its parent folder.
+     */
+<span class="fc" id="L44">    public RootFolder(final Class&lt;?&gt; clazz) {</span>
+<span class="fc" id="L45">        this.clazz = clazz;</span>
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Gives the folder that contains the class. In case the class is located in a folder
+     * it will give the folder from which the packages start. In case the class is located
+     * in a jar file it will give the folder that contains the jar file.
+     * @return the {@code File} corresponding to the folder that contains the class.
+     */
+    public File getLocation() {
+<span class="fc" id="L55">        final String name = clazz.getName();</span>
+<span class="fc" id="L56">        final String resource = String.format(&quot;/%s.class&quot;, name.replace('.', '/'));</span>
+<span class="fc" id="L57">        final URL url = clazz.getResource(resource);</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (url == null) {</span>
+<span class="nc" id="L59">            throw new IllegalStateException(String.format(&quot;Cannot locate the class '%s'&quot;, name));</span>
+        }
+        try {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            if (&quot;file&quot;.equals(url.getProtocol())) {</span>
+<span class="fc" id="L63">                final String urlStr = url.toString();</span>
+<span class="fc" id="L64">                final String root = urlStr.substring(0, urlStr.length() - resource.length() + 1);</span>
+<span class="fc" id="L65">                return new File(new URI(root));</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            } else if (&quot;jar&quot;.equals(url.getProtocol())) {</span>
+<span class="fc" id="L67">                String urlStr = url.getPath();</span>
+<span class="fc" id="L68">                int index = urlStr.lastIndexOf('!');</span>
+<span class="fc" id="L69">                urlStr = urlStr.substring(0, index);</span>
+<span class="fc" id="L70">                index = urlStr.lastIndexOf('/');</span>
+<span class="fc" id="L71">                final String root = urlStr.substring(0, index + 1);</span>
+<span class="fc" id="L72">                return new File(new URI(root));</span>
+            }
+<span class="nc" id="L74">        } catch (URISyntaxException e) {</span>
+<span class="nc" id="L75">            throw new IllegalStateException(String.format(&quot;Could not manage the path '%s'&quot;, url), e);</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">        throw new IllegalStateException(String.format(&quot;Cannot manage the protocol '%s'&quot;, url.getProtocol()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

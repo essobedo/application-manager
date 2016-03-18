@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LogProgress.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Application Manager main Project</a> &gt; <a href="index.source.html" class="el_package">com.github.essobedo.appma.core.progress</a> &gt; <span class="el_source">LogProgress.java</span></div><h1>LogProgress.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 essobedo.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.github.essobedo.appma.core.progress;
+
+import com.github.essobedo.appma.task.Task;
+import com.github.essobedo.appma.task.TaskProgress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Class allowing to log any progress of a given task. It is used by default for all
+ * non Java FX tasks.
+ *
+ * @author Nicolas Filotto (nicolas.filotto@gmail.com)
+ * @version $Id$
+ * @since 1.0
+ */
+public final class LogProgress extends TaskProgress {
+
+    /**
+     * The logger of the class.
+     */
+<span class="fc" id="L39">    private static final Logger LOG = Logger.getLogger(LogProgress.class.getName());</span>
+
+    /**
+     * Constructs a {@code LogProgress} with the specified task.
+     * @param task the task for which we want to log the progress.
+     */
+    public LogProgress(final Task&lt;?&gt; task) {
+<span class="fc" id="L46">        super(task);</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
+    public void updateProgress(final int done, final int max) {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (LOG.isLoggable(Level.INFO)) {</span>
+<span class="fc" id="L52">            LOG.log(Level.INFO, String.format(&quot;Task '%s': %d out of %d has been done&quot;,</span>
+<span class="fc" id="L53">                getTask().getName(), done, max));</span>
+        }
+<span class="fc" id="L55">    }</span>
+
+    @Override
+    public void updateMessage(final String message) {
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (LOG.isLoggable(Level.INFO)) {</span>
+<span class="fc" id="L60">            LOG.log(Level.INFO, String.format(&quot;Task '%s': %s&quot;, getTask().getName(), message));</span>
+        }
+<span class="fc" id="L62">    }</span>
+
+    @Override
+    public void cancel() {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (LOG.isLoggable(Level.INFO)) {</span>
+<span class="fc" id="L67">            LOG.log(Level.INFO, String.format(&quot;The task '%s' has been canceled&quot;, getTask().getName()));</span>
+        }
+<span class="fc" id="L69">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

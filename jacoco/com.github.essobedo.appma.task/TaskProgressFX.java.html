@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TaskProgressFX.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Application Manager main Project</a> &gt; <a href="index.source.html" class="el_package">com.github.essobedo.appma.task</a> &gt; <span class="el_source">TaskProgressFX.java</span></div><h1>TaskProgressFX.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 essobedo.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.github.essobedo.appma.task;
+
+import com.github.essobedo.appma.exception.ApplicationException;
+import com.github.essobedo.appma.exception.TaskInterruptedException;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+/**
+ * The root class of the {@code TaskObserver} in case of a Java FX application.
+ *
+ * @author Nicolas Filotto (nicolas.filotto@gmail.com)
+ * @version $Id$
+ * @since 1.0
+ * @param &lt;T&gt; The return type of the task.
+ */
+@SuppressWarnings(&quot;PMD.AbstractNaming&quot;)
+public abstract class TaskProgressFX&lt;T&gt; extends TaskProgress {
+
+    /**
+     * The progress of the task.
+     */
+<span class="fc" id="L48">    private final DoubleProperty progress = new SimpleDoubleProperty(this, &quot;progress&quot;, -1);</span>
+    /**
+     * The status of the task.
+     */
+<span class="fc" id="L52">    private final StringProperty message = new SimpleStringProperty(this, &quot;message&quot;, &quot;&quot;);</span>
+    /**
+     * Indicates whether the task is over.
+     */
+<span class="fc" id="L56">    private final BooleanProperty over = new SimpleBooleanProperty(this, &quot;over&quot;, false);</span>
+
+    /**
+     * Constructs a {@code TaskProgressFX} with the specified task.
+     * @param task the task to observe.
+     */
+    public TaskProgressFX(final Task&lt;T&gt; task) {
+<span class="fc" id="L63">        super(task);</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Gives the current progress of the task.
+     * @return the current progress of the task.
+     */
+    public final double getProgress() {
+<span class="nc" id="L71">        return progress.get();</span>
+    }
+    /**
+     * Gives the current progress of the task.
+     * @return the current progress of the task.
+     */
+    public final ReadOnlyDoubleProperty progressProperty() {
+<span class="fc" id="L78">        return progress;</span>
+    }
+    /**
+     * Gives the current status of the task.
+     * @return the current status of the task.
+     */
+    public final String getMessage() {
+<span class="nc" id="L85">        return message.get();</span>
+    }
+    /**
+     * Gives the current status of the task.
+     * @return the current status of the task.
+     */
+    public final ReadOnlyStringProperty messageProperty() {
+<span class="fc" id="L92">        return message;</span>
+    }
+    /**
+     * Indicates whether the task is over.
+     * @return {@code true} if the task is over, {@code false} otherwise.
+     */
+    public final boolean isOver() {
+<span class="nc" id="L99">        return over.get();</span>
+    }
+    /**
+     * Indicates whether the task is over.
+     * @return {@code true} if the task is over, {@code false} otherwise.
+     */
+    public final ReadOnlyBooleanProperty overProperty() {
+<span class="fc" id="L106">        return over;</span>
+    }
+    /**
+     * Cancels the underlying task if possible.
+     */
+    public final void cancelTask() {
+<span class="nc" id="L112">        getTask().cancel();</span>
+<span class="nc" id="L113">    }</span>
+
+    @Override
+    public final void updateProgress(final int done, final int max) {
+<span class="nc" id="L117">        Platform.runLater(() -&gt; {</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">            if (done &lt;= max &amp;&amp; max &gt; 0) {</span>
+<span class="nc" id="L119">                this.progress.set((double) (done / max));</span>
+            } else {
+<span class="nc" id="L121">                this.progress.set(-1.0d);</span>
+            }
+<span class="nc" id="L123">        });</span>
+<span class="nc" id="L124">    }</span>
+
+    @Override
+    public final void updateMessage(final String message) {
+<span class="fc" id="L128">        Platform.runLater(() -&gt; this.message.setValue(message));</span>
+<span class="fc" id="L129">    }</span>
+
+    /**
+     * Executes the underlying task.
+     * @return the result of the task.
+     * @throws ApplicationException if an error occurs while executing the task.
+     * @throws TaskInterruptedException if the task has been interrupted.
+     */
+    public final T execute() throws ApplicationException, TaskInterruptedException {
+        try {
+<span class="nc" id="L139">            return (T) getTask().execute();</span>
+        } finally {
+<span class="nc" id="L141">            Platform.runLater(() -&gt; this.over.setValue(true));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

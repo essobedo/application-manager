@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TaskObserver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Application Manager main Project</a> &gt; <a href="index.source.html" class="el_package">com.github.essobedo.appma.task</a> &gt; <span class="el_source">TaskObserver.java</span></div><h1>TaskObserver.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 essobedo.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.github.essobedo.appma.task;
+
+import java.util.Observable;
+import java.util.Observer;
+
+/**
+ * Defines the {@link Observer} of a {@link Task}.
+ *
+ * @author Nicolas Filotto (nicolas.filotto@gmail.com)
+ * @version $Id$
+ * @since 1.0
+ */
+public interface TaskObserver extends Observer {
+
+    @Override
+    default void update(final Observable observable, final Object object) {
+        final Task&lt;?&gt; task;
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (observable instanceof Task) {</span>
+<span class="fc" id="L37">            task = (Task&lt;?&gt;) observable;</span>
+        } else {
+<span class="nc" id="L39">            throw new IllegalArgumentException(&quot;A task was expected&quot;);</span>
+        }
+        final Task.Event event;
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (object instanceof Task.Event) {</span>
+<span class="fc" id="L43">            event = (Task.Event) object;</span>
+        } else {
+<span class="nc" id="L45">            throw new IllegalArgumentException(&quot;A task event was expected&quot;);</span>
+        }
+<span class="pc bpc" id="L47" title="1 of 4 branches missed.">        switch (event) {</span>
+            case PROGRESS:
+<span class="fc" id="L49">                updateProgress(task.getWorkDone(), task.getMax());</span>
+<span class="fc" id="L50">                break;</span>
+            case MESSAGE:
+<span class="fc" id="L52">                updateMessage(task.getMessage());</span>
+<span class="fc" id="L53">                break;</span>
+            case CANCEL:
+<span class="fc" id="L55">                cancel();</span>
+<span class="fc" id="L56">                break;</span>
+            default:
+<span class="nc" id="L58">                throw new IllegalArgumentException(&quot;Unknown event&quot;);</span>
+        }
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Notifies that the current progress of the task has changed.
+     * @param done the work already done.
+     * @param max the maximum work to be done.
+     */
+    void updateProgress(int done, int max);
+
+    /**
+     * Notifies that the status of the task has changed.
+     * @param message the status of the task.
+     */
+    void updateMessage(String message);
+
+    /**
+     * Notifies that the task has been canceled.
+     */
+    void cancel();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

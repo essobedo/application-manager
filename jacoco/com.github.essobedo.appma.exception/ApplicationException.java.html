@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ApplicationException.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Application Manager main Project</a> &gt; <a href="index.source.html" class="el_package">com.github.essobedo.appma.exception</a> &gt; <span class="el_source">ApplicationException.java</span></div><h1>ApplicationException.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2016 essobedo.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.github.essobedo.appma.exception;
+
+/**
+ * The main exception of the application manager.
+ *
+ * @author Nicolas Filotto (nicolas.filotto@gmail.com)
+ * @version $Id$
+ * @since 1.0
+ */
+public class ApplicationException extends Exception {
+
+    /**
+     * The serial version UID.
+     */
+    private static final long serialVersionUID = -7491091906224057082L;
+
+    /**
+     * Constructs an {@code ApplicationException} with the specified detail message.
+     *
+     * @param message The detail message (which is saved for later retrieval
+     *                by the {@link #getMessage()} method)
+     */
+    public ApplicationException(final String message) {
+<span class="fc" id="L42">        super(message);</span>
+<span class="fc" id="L43">    }</span>
+
+    /**
+     * Constructs an {@code ApplicationException} with the specified detail message
+     * and cause.
+     *
+     * &lt;p&gt; Note that the detail message associated with {@code cause} is
+     * &lt;i&gt;not&lt;/i&gt; automatically incorporated into this exception's detail
+     * message.
+     *
+     * @param message The detail message (which is saved for later retrieval
+     *                by the {@link #getMessage()} method)
+     * @param cause   The cause (which is saved for later retrieval by the
+     *                {@link #getCause()} method).  (A null value is permitted,
+     *                and indicates that the cause is nonexistent or unknown.)
+     */
+    public ApplicationException(final String message, final Throwable cause) {
+<span class="fc" id="L60">        super(message, cause);</span>
+<span class="fc" id="L61">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
