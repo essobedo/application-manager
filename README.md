@@ -6,14 +6,14 @@
 
 ## What is it for?
 
-The main purpose of this project is to be able to dynamically upgrade an application. The application can be both a Java FX application or a non Java FX application.
+The main purpose of this project is to be able to dynamically upgrade a guest application. The guest application can be both a Java FX application or a non Java FX application.
 
 ## How to build it?
 
 This project relies on *maven*, so you will need to install maven 3 with a JDK 8, then simply launch the famous
 command *mvn clean install* and that's it!
 
-If to avoid signing the artifacts you can launch  *mvn clean install -Pfast*.
+To avoid signing the artifacts you can launch  *mvn clean install -Pfast*.
 
 ## How to launch it?
 
@@ -77,9 +77,8 @@ See below an example of configuration of the java packager with maven:
 
 ### Build the ClassLoader
 
-The application manager checks first for a file called by default *appma.properties* in the same directory as the file *application-manager-${version}.jar.
-If it can find this properties file, it will then get the value of the key *classpath*, in order to build the ClassLoader required to launch the guest
-application.
+The application manager checks first for a file called by default *appma.properties* in the same directory as the file *application-manager-${version}.jar*.
+If the file can be found, it will then get the value of the key *classpath*, in order to build the ClassLoader required to launch the guest application.
 
 See below an example of content of this file:
 
@@ -90,7 +89,8 @@ classpath=my-application.jar;my-dependency.jar;my-root-directory-containing-depe
 The name of the file could be modified thanks to the System parameter *essobedo.appma.core.config*.
 
 In case the application manager cannot find the configuration file, it will check if there are jar files in the directory if so they will be used to create
-the ClassLoader otherwise it will use the directory as root directory of your application assuming that there is no jar file only class files.
+the ClassLoader otherwise it will use the directory as root directory of your application assuming that there is no jar file only class files that have been
+deployed directly in the directory.
 
 ### Launch the guest application
 
@@ -99,10 +99,10 @@ look for an implementation of the interface [Manageable](https://github.com/esso
 that accepts the arguments that have been provided to the application manager. Once it finds an application that matches, it will create an instance of it then initialize it to
 launch it.
 
-### Check and upgrade the guest application
+### Check for update and upgrade the guest application
 
 An implementation of Manageable can interact with the application manager in order to indicate that the application must exit but also to check for an update or to
-upgrade the application to the latest version. Behind the scene, the application manager also relies on SPI to identify the implementation of the interface
+upgrade the application to the latest version. Behind the scene, the application manager relies also on SPI to identify the implementation of the interface
 [VersionManager](https://github.com/essobedo/application-manager/blob/master/src/main/java/com/github/essobedo/appma/spi/VersionManager.java) that knows how to
 check for update or upgrade this particular Manageable implementation.
 
