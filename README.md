@@ -1,6 +1,5 @@
 [![Build Status](https://img.shields.io/travis/essobedo/application-manager/master.svg)](https://travis-ci.org/essobedo/application-manager)
 [![License](https://img.shields.io/badge/license-LGPLv2.1-green.svg)](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
-
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.github.essobedo/application-manager/badge.svg?color=blue&prefix=v)](http://www.javadoc.io/doc/com.github.essobedo/application-manager)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.essobedo/application-manager.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.essobedo/application-manager)
 
