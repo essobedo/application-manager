@@ -12,7 +12,8 @@ The main purpose of this project is to be able to dynamically upgrade a guest ap
 This project relies on *maven*, so you will need to install maven 3 with a JDK 8, then simply launch the famous
 command *mvn clean install* and that's it!
 
-To avoid signing the artifacts you can launch  *mvn clean install -Pfast*.
+To avoid signing the artifacts you can launch *mvn clean install -Pfast*.
+To check the quality of the code, you can launch *mvn clean install -Pcheck*.
 
 ## How to launch it?
 
