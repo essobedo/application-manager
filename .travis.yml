@@ -6,9 +6,9 @@ before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 install:
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pfast
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pcheck
 script:
-  - curl -s https://raw.githubusercontent.com/vjkoskela/jdk-wrapper/master/jdk-wrapper.sh | bash /dev/stdin mvn clean install -Pfast
+  - curl -s https://raw.githubusercontent.com/vjkoskela/jdk-wrapper/master/jdk-wrapper.sh | bash /dev/stdin mvn clean install -Pcheck
   - mvn clean
 env:
   global:
