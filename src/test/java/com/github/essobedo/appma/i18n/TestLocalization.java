@@ -20,6 +20,8 @@ package com.github.essobedo.appma.i18n;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -47,5 +49,20 @@ public class TestLocalization {
         assertEquals("Hello World!", localization.getLocalizedMessage("key2", "World"));
         assertEquals("key3", localization.getLocalizedMessage("key3", "World"));
         assertEquals("key4", localization.getLocalizedMessage("key4"));
+    }
+
+    @Test
+    public void testContainsLocalizedMessage() {
+        Localization localization = new Localization("i18n.foo");
+        assertTrue(localization.containsLocalizedMessage("key1"));
+        assertTrue(localization.containsLocalizedMessage("key2"));
+        assertTrue(localization.containsLocalizedMessage("key3"));
+        assertFalse(localization.containsLocalizedMessage("key4"));
+    }
+
+    @Test
+    public void testContainsMessage() {
+        assertTrue(Localization.containsMessage("cancel"));
+        assertFalse(Localization.containsMessage("foo"));
     }
 }

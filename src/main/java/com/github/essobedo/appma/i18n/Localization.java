@@ -86,6 +86,16 @@ public final class Localization {
     }
 
     /**
+     * Indicates whether a message associated with the given key exists or not.
+     *
+     * @param key The key of the message to check.
+     * @return {@code true} if the message exists, {@code false} otherwise.
+     */
+    public boolean containsLocalizedMessage(final String key) {
+        return resourceBundle.containsKey(key);
+    }
+
+    /**
      * Gives the messages corresponding to the specified key using the given parameters.
      *
      * @param key The key of the message to retrieve.
@@ -94,6 +104,16 @@ public final class Localization {
      */
     public static String getMessage(final String key, final Object... params) {
         return LocalizationHolder.INSTANCE.getLocalizedMessage(key, params);
+    }
+
+    /**
+     * Indicates whether a message associated with the given key exists or not.
+     *
+     * @param key The key of the message to check.
+     * @return {@code true} if the message exists, {@code false} otherwise.
+     */
+    public static boolean containsMessage(final String key) {
+        return LocalizationHolder.INSTANCE.containsLocalizedMessage(key);
     }
 
     /**
