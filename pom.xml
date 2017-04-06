@@ -4,7 +4,7 @@
 
     <groupId>com.github.essobedo</groupId>
     <artifactId>application-manager</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
     <name>Application Manager main Project</name>
     <description>The application manager allowing to dynamically launch and upgrade applications</description>
@@ -20,7 +20,7 @@
         <connection>scm:git:git@github.com:essobedo/application-manager.git</connection>
         <developerConnection>scm:git:git@github.com:essobedo/application-manager.git</developerConnection>
         <url>git@github.com:essobedo/application-manager.git</url>
-      <tag>HEAD</tag>
+      <tag>1.1.2</tag>
   </scm>
 
     <developers>
